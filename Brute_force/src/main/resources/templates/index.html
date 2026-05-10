@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profesjonalny Wizualizator Brute Force</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="bi bi-cpu-fill me-2" style="color: var(--primary);"></i>
+            <span>BF-EDU <small class="text-muted">| Substring Matching Visualizer</small></span>
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link active" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
+            <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
+            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 py-2">
+    <header class="text-center mb-4">
+        <h1 class="academic-header">Laboratorium Wizualizacji: Brute Force</h1>
+        <p class="text-muted mx-auto mb-0" style="max-width: 800px; font-size: 0.95rem;">
+            Interaktywne środowisko analizy mikrokroków algorytmu wyszukiwania wzorca. 
+            Pozwala na obserwację mechaniki przesunięć i weryfikacji znaków w czasie rzeczywistym.
+        </p>
+    </header>
+
+    <!-- SEKACJA WIZUALIZACJI - PEŁNA SZEROKOŚĆ -->
+    <div class="row" th:if="${result != null and result.visualSteps != null}">
+        <div class="col-12">
+            <div class="visualizer-full-width shadow-lg border-primary position-relative">
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-2">
+                    <span class="fs-5 text-white fw-bold"><i class="bi bi-eye-fill me-2 text-primary"></i>POLE WIZUALIZACJI</span>
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="d-flex gap-3 me-3">
+                            <div class="badge bg-dark border border-secondary p-2">
+                                <span class="text-dim small text-uppercase">Pozycja i:</span>
+                                <span id="current-i-val" class="text-primary fw-bold ms-1">0</span>
+                            </div>
+                            <div class="badge bg-dark border border-secondary p-2">
+                                <span class="text-dim small text-uppercase">Wystąpienia:</span>
+                                <span id="match-count-val" class="text-accent fw-bold ms-1">0</span>
+                            </div>
+                            <div class="badge bg-dark border border-secondary p-2" id="live-positions-badge" style="display:none;">
+                                <span class="text-dim small text-uppercase">Poz:</span>
+                                <span id="live-positions-val" class="text-white small ms-1">[]</span>
+                            </div>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button id="speed1" class="btn btn-outline-primary speed-btn active" onclick="setSpeed(1)">x1</button>
+                            <button id="speed2" class="btn btn-outline-primary speed-btn" onclick="setSpeed(2)">x2</button>
+                            <button id="speed4" class="btn btn-outline-primary speed-btn" onclick="setSpeed(4)">x4</button>
+                        </div>
+                        <div class="text-dim small"><i class="bi bi-info-circle me-1"></i>Użyj strzałek na klawiaturze do sterowania</div>
+                    </div>
+                </div>
+
+                <div class="visual-area py-3" style="overflow-x: auto;">
+                    <div class="text-primary small mb-2 fw-bold text-uppercase tracking-wider">TEKST (PRZESZUKIWANY ZBIÓR DANYCH):</div>
+                    <div id="text-row" class="char-grid mb-4"></div>
+                    
+                    <div class="text-primary small mb-2 fw-bold text-uppercase tracking-wider">WZORZEC (SZUKANA FRAZA):</div>
+                    <div id="pattern-container" style="position: relative; height: 80px; margin-bottom: 10px;">
+                        <div id="pattern-row" class="char-grid" style="position: absolute; left: 0;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3 bg-dark bg-opacity-50 p-2 rounded border border-secondary">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-dark border-secondary control-arrow" onclick="prevStep()" title="Wstecz">
+                            <i class="bi bi-arrow-left"></i>
+                        </button>
+                        <button id="playBtn" class="btn btn-primary px-4 fw-bold" onclick="togglePlay()">
+                            <i class="bi bi-play-fill"></i> START
+                        </button>
+                        <button class="btn btn-dark border-secondary control-arrow" onclick="nextStep()" title="Dalej">
+                            <i class="bi bi-arrow-right"></i>
+                        </button>
+                        <button class="btn btn-outline-danger ms-2" onclick="resetAnimation()">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                    </div>
+                    <div class="flex-grow-1 mx-4">
+                        <input type="range" class="form-range" id="timelineRange" min="0" value="0" oninput="jumpToStep(this.value)">
+                    </div>
+                    <div class="text-white fw-mono" id="step-counter-label" style="min-width: 120px; text-align: right;">Krok 0 / 0</div>
+                </div>
+            </div>
+
+            <!-- SEKACJA WYNIKÓW KOŃCOWYCH (Ukryta domyślnie) -->
+            <div id="final-results-card" class="card shadow mt-4 d-none animate-fadeIn">
+                <div class="card-header bg-accent bg-opacity-10 text-accent">
+                    <i class="bi bi-trophy me-2"></i>WYNIK KOŃCOWY WYSZUKIWANIA
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="small text-muted text-uppercase">Liczba wystąpień</div>
+                            <div class="fs-2 fw-bold text-accent" id="final-count">0</div>
+                        </div>
+                        <div class="col-md-6 border-start border-end border-secondary">
+                            <div class="small text-muted text-uppercase">Pozycje dopasowań</div>
+                            <div class="fs-4 fw-mono text-white mt-2" id="final-positions">[]</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small text-muted text-uppercase">Operacje</div>
+                            <div class="small text-dim">Porównania: <span class="text-white" id="final-comps">0</span></div>
+                            <div class="small text-dim">Przesunięcia: <span class="text-white" id="final-shifts">0</span></div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-top border-secondary">
+                        <div class="text-primary fw-bold small text-uppercase mb-1">Podsumowanie Eksperymentu:</div>
+                        <div id="final-summary" class="text-white academic-text">Analiza danych w toku...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DOLNA SEKCJA: KOFNIGURACJA, LOGI I PSEUDOKOD -->
+    <div class="row g-4">
+        <!-- KONFIGURACJA -->
+        <div class="col-lg-3">
+            <div class="card shadow h-100">
+                <div class="card-header border-primary border-opacity-25">
+                    <i class="bi bi-sliders me-2"></i>KONFIGURACJA EKSPERYMENTU
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/run}" th:object="${config}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Długość tekstu (n)</label>
+                            <input type="number" th:field="*{textLength}" class="form-control form-control-sm" min="5" max="100000">
+                            <div class="config-help">Dla wizualizacji zaleca się &le; 30 znaków.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Długość wzorca (m)</label>
+                            <input type="number" th:field="*{patternLength}" class="form-control form-control-sm" min="1" max="100">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rozkład Danych</label>
+                            <select th:field="*{dataType}" id="dataType" class="form-select form-select-sm" onchange="toggleFormFields()">
+                                <option value="NATURAL">Tekst naturalny</option>
+                                <option value="UNIFORM">Rozkład jednostajny</option>
+                                <option value="PATHOLOGICAL">Dane patologiczne</option>
+                                <option value="PERIODIC">Dane periodyczne</option>
+                                <option value="DNA">Dane DNA / mały alfabet</option>
+                            </select>
+                            <div class="config-help">Wpływa na strukturę tekstu i wzorca.</div>
+                        </div>
+                        <div class="mb-3" id="sigma-container">
+                            <label class="form-label">Wielkość alfabetu (&sigma;)</label>
+                            <input type="number" th:field="*{alphabetSize}" class="form-control form-control-sm" min="1" max="26">
+                            <div class="config-help">Liczba unikalnych znaków (a-z).</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Pozycja wzorca</label>
+                            <select th:field="*{patternPosition}" id="patternPosition" class="form-select form-select-sm" onchange="toggleFormFields()">
+                                <option value="START">Początek</option>
+                                <option value="MIDDLE">Środek</option>
+                                <option value="END">Koniec</option>
+                                <option value="MULTIPLE">Wiele wystąpień</option>
+                            </select>
+                            <div class="config-help">Gdzie wstrzyknąć wzorzec w tekście.</div>
+                        </div>
+                        <div class="mb-3" id="match-count-container">
+                            <label class="form-label">Liczba wystąpień</label>
+                            <input type="number" th:field="*{matchCount}" class="form-control form-control-sm" min="1" max="10">
+                        </div>
+                        <div class="mb-3" id="seed-container">
+                            <label class="form-label">Seed (RNG)</label>
+                            <input type="number" th:field="*{seed}" id="seed" class="form-control form-control-sm">
+                            <div class="config-help">Ziarno dla powtarzalnych wyników.</div>
+                        </div>
+                        <input type="hidden" th:field="*{repetitions}" value="1">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-2 shadow">
+                            <i class="bi bi-play-circle-fill me-2"></i>GENERUJ I ANALIZUJ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- AKTUALNA OPERACJA I PSEUDOKOD -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4" th:if="${result != null}">
+                <div class="card-header"><i class="bi bi-activity me-2"></i>AKTUALNA OPERACJA</div>
+                <div class="card-body p-0">
+                    <div id="current-log" class="current-log-card">
+                        Czekam na uruchomienie wizualizacji...
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow" th:if="${result != null}">
+                <div class="card-header bg-accent bg-opacity-10 text-accent">
+                    <i class="bi bi-info-circle me-2"></i>CHARAKTERYSTYKA WYBRANEGO ROZKŁADU
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-primary fw-bold mb-1 fs-6">Scenariusz:</div>
+                            <div class="academic-text mb-2" th:utext="${result.dataDescription}"></div>
+                        </div>
+                        <div class="col-md-3 border-start border-secondary">
+                            <div class="text-primary fw-bold mb-1 fs-6">Metoda generacji:</div>
+                            <div class="academic-text mb-2" th:utext="${result.generationMethod}"></div>
+                        </div>
+                        <div class="col-md-3 border-start border-secondary">
+                            <div class="text-primary fw-bold mb-1 fs-6">Wpływ na Wydajność:</div>
+                            <div class="academic-text mb-2" th:text="${result.algorithmImpact}"></div>
+                        </div>
+                        <div class="col-md-3 border-start border-secondary">
+                            <div class="text-primary fw-bold mb-1 fs-6">Dlaczego to jest trudne?</div>
+                            <div class="academic-text" th:text="${result.difficultyExplanation}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Widok startowy jeśli brak danych -->
+            <div class="card shadow-lg border-primary text-center p-5 h-100 d-flex flex-column justify-content-center" th:if="${result == null}">
+                <i class="bi bi-display fs-1 text-primary mb-4"></i>
+                <h2 class="text-white">System Gotowy</h2>
+                <p class="text-muted">Skonfiguruj parametry i wygeneruj dane, aby rozpocząć analizę.</p>
+            </div>
+        </div>
+
+        <!-- STATYSTYKI I PSEUDOKOD -->
+        <div class="col-lg-3">
+            <div class="card shadow mb-4 h-100">
+                <div class="card-header"><i class="bi bi-code-slash me-2"></i>PSEUDOKOD</div>
+                <div class="card-body p-0">
+                    <div class="code-container h-100">
+                        <div class="code-line" id="line-1">ALGORITHM BruteForceSearch(T, P)</div>
+                        <div class="code-line" id="line-2">&nbsp;&nbsp;FOR i FROM 0 TO n - m DO</div>
+                        <div class="code-line" id="line-3">&nbsp;&nbsp;&nbsp;&nbsp;j = 0</div>
+                        <div class="code-line" id="line-4">&nbsp;&nbsp;&nbsp;&nbsp;WHILE j &lt; m AND T[i+j] == P[j] DO</div>
+                        <div class="code-line" id="line-5">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j = j + 1</div>
+                        <div class="code-line" id="line-6">&nbsp;&nbsp;&nbsp;&nbsp;IF j == m THEN</div>
+                        <div class="code-line" id="line-7">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;REPORT match at i</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DODATKOWE STATYSTYKI (POJAWIAJĄ SIĘ PO GENERCJI) -->
+    <div class="row mt-3 g-3" th:if="${result != null}">
+        <div class="col-md-4">
+            <div class="stat-box-large shadow">
+                <span class="stat-value-large" th:text="${result.comparisons}">0</span>
+                <span class="stat-label-large">Porównania Znaków</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box-large shadow">
+                <span class="stat-value-large" th:text="${result.shifts}">0</span>
+                <span class="stat-label-large">Przesunięcia Wzorca</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box-large shadow">
+                <span class="stat-value-large text-accent" th:text="${result.occurrences}">0</span>
+                <span class="stat-label-large">Znalezione Dopasowania</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="mt-5 pb-5">
+    <div class="container text-center py-4 border-top border-secondary">
+    </div>
+</footer>
+
+<script th:inline="javascript">
+    function toggleFormFields() {
+        const dataType = document.getElementById('dataType').value;
+        const patternPosition = document.getElementById('patternPosition').value;
+        
+        const seedInput = document.getElementById('seed');
+        const seedContainer = document.getElementById('seed-container');
+        const sigmaContainer = document.getElementById('sigma-container');
+        const matchCountContainer = document.getElementById('match-count-container');
+        
+        // Seed ma znaczenie dla NATURAL, UNIFORM i DNA
+        const isRandomized = (dataType === 'NATURAL' || dataType === 'UNIFORM' || dataType === 'DNA');
+        
+        if (isRandomized) {
+            seedInput.disabled = false;
+            seedContainer.style.opacity = '1';
+        } else {
+            seedInput.disabled = true;
+            seedContainer.style.opacity = '0.5';
+        }
+
+        // Sigma tylko dla UNIFORM
+        sigmaContainer.style.display = (dataType === 'UNIFORM') ? 'block' : 'none';
+
+        // MatchCount tylko dla MULTIPLE
+        matchCountContainer.style.display = (patternPosition === 'MULTIPLE') ? 'block' : 'none';
+    }
+
+    // Wywołaj przy ładowaniu, aby ustawić stan początkowy
+    document.addEventListener('DOMContentLoaded', toggleFormFields);
+
+    /*<![CDATA[*/
+    const lastResult = /*[[${result}]]*/ null;
+    
+    if (lastResult && lastResult.visualSteps) {
+        const text = lastResult.text;
+        const pattern = lastResult.pattern;
+        const steps = lastResult.visualSteps;
+        const textRow = document.getElementById('text-row');
+        const patternRow = document.getElementById('pattern-row');
+        const currentLog = document.getElementById('current-log');
+        const playBtn = document.getElementById('playBtn');
+        const timelineRange = document.getElementById('timelineRange');
+        const stepLabel = document.getElementById('step-counter-label');
+
+        let currentStep = 0;
+        let isPlaying = false;
+        let interval = null;
+        let speedMultiplier = 1;
+
+        // Inicjalizacja tekstu
+        if (text) {
+            text.split('').forEach((char, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                cell.innerHTML = `<span>${char}</span><small class="char-idx">${i}</small>`;
+                cell.id = `t-${i}`;
+                textRow.appendChild(cell);
+            });
+        }
+
+        // Inicjalizacja wzorca
+        if (pattern) {
+            pattern.split('').forEach((char, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'char-cell';
+                cell.innerHTML = `<span>${char}</span><small class="char-idx">${i}</small>`;
+                cell.id = `p-${i}`;
+                patternRow.appendChild(cell);
+            });
+        }
+
+        timelineRange.max = steps.length - 1;
+        stepLabel.innerText = `Krok 1 / ${steps.length}`;
+
+        function formatDescription(desc) {
+            return desc
+                .replace(/FULL MATCH/g, '<span class="status-match" style="border: 1px solid var(--accent);">$&</span>')
+                .replace(/MATCH|ZGODNOŚĆ|SUKCES|DOPASOWANIE/g, '<span class="status-match">$&</span>')
+                .replace(/MISMATCH|ROZBIEŻNOŚĆ|BŁĄD/g, '<span class="status-mismatch">$&</span>');
+        }
+
+        function updateStep(idx) {
+            currentStep = parseInt(idx);
+            const step = steps[currentStep];
+            stepLabel.innerText = `Krok ${currentStep + 1} / ${steps.length}`;
+            timelineRange.value = currentStep;
+            
+            // Liczniki
+            document.getElementById('current-i-val').innerText = step.shift;
+            
+            // Znajdź ile dopasowań znaleziono DO TEGO KROKU
+            const foundSoFar = [];
+            for (let k = 0; k <= currentStep; k++) {
+                if (steps[k].type === 'FOUND') {
+                    foundSoFar.push(steps[k].shift);
+                }
+            }
+            document.getElementById('match-count-val').innerText = foundSoFar.length;
+            
+            const livePosBadge = document.getElementById('live-positions-badge');
+            if (foundSoFar.length > 0) {
+                livePosBadge.style.display = 'block';
+                document.getElementById('live-positions-val').innerText = `[${foundSoFar.join(', ')}]`;
+            } else {
+                livePosBadge.style.display = 'none';
+            }
+
+            // Tylko aktualny log
+            currentLog.innerHTML = `<span class="log-prefix">AKTUALNIE:</span> ${formatDescription(step.description)}`;
+
+            // Reset stylów
+            document.querySelectorAll('.char-cell').forEach(c => {
+                c.classList.remove('active-p', 'match', 'mismatch', 'found-match');
+            });
+            document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
+
+            // Trwałe podświetlenie znalezionych dopasowań
+            foundSoFar.forEach(pos => {
+                for (let m = 0; m < pattern.length; m++) {
+                    const tCell = document.getElementById(`t-${pos + m}`);
+                    if (tCell) tCell.classList.add('found-match');
+                }
+            });
+
+            // Ustawienie pozycji wzorca
+            const cellElement = document.querySelector('.char-cell');
+            const cellWidth = cellElement ? cellElement.offsetWidth + 8 : 68; 
+            patternRow.style.left = `${step.shift * cellWidth}px`;
+
+            // Podświetlenie linii pseudokodu
+            if (step.pseudoCodeLine > 0) {
+                const line = document.getElementById(`line-${step.pseudoCodeLine}`);
+                if (line) line.classList.add('active');
+            }
+
+            // Podświetlenie porównania
+            if (step.textIndex >= 0) {
+                const tCell = document.getElementById(`t-${step.textIndex}`);
+                if (tCell) {
+                    tCell.classList.add('active-p');
+                    if (step.type === 'MATCH' || step.type === 'FOUND') tCell.classList.add('match');
+                    else if (step.type === 'MISMATCH') tCell.classList.add('mismatch');
+                }
+            }
+            if (step.patternIndex >= 0) {
+                const pCell = document.getElementById(`p-${step.patternIndex}`);
+                if (pCell) {
+                    pCell.classList.add('active-p');
+                    if (step.type === 'MATCH' || step.type === 'FOUND') pCell.classList.add('match');
+                    else if (step.type === 'MISMATCH') pCell.classList.add('mismatch');
+                }
+            }
+
+            // Obsługa końca animacji
+            if (currentStep === steps.length - 1) {
+                showFinalResults(foundSoFar);
+            } else {
+                const finalCard = document.getElementById('final-results-card');
+                if (finalCard) finalCard.classList.add('d-none');
+            }
+        }
+
+        function showFinalResults(positions) {
+            const card = document.getElementById('final-results-card');
+            if (!card) return;
+            card.classList.remove('d-none');
+            document.getElementById('final-count').innerText = positions.length;
+            document.getElementById('final-positions').innerText = positions.length > 0 ? `[${positions.join(', ')}]` : 'Brak dopasowań';
+            document.getElementById('final-comps').innerText = lastResult.comparisons;
+            document.getElementById('final-shifts').innerText = lastResult.shifts;
+            document.getElementById('final-summary').innerText = lastResult.searchSummary;
+            
+            // Pokaż wszystkie dopasowania trwale
+            document.querySelectorAll('.char-cell').forEach(c => c.classList.remove('active-p', 'match', 'mismatch'));
+            positions.forEach(pos => {
+                for (let m = 0; m < pattern.length; m++) {
+                    const tCell = document.getElementById(`t-${pos + m}`);
+                    if (tCell) tCell.classList.add('found-match');
+                }
+            });
+        }
+
+        window.setSpeed = function(s) {
+            speedMultiplier = s;
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.id === 'speed' + s) btn.classList.add('active');
+            });
+            if (isPlaying) {
+                pause();
+                play();
+            }
+        };
+
+        window.togglePlay = function() {
+            if (isPlaying) pause();
+            else play();
+        };
+
+        function play() {
+            if (currentStep >= steps.length - 1) {
+                currentStep = -1;
+            }
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="bi bi-pause-fill"></i> PAUZA';
+            playBtn.classList.replace('btn-primary', 'btn-warning');
+            
+            const baseDelay = 1000;
+            interval = setInterval(() => {
+                if (currentStep < steps.length - 1) {
+                    currentStep++;
+                    updateStep(currentStep);
+                } else {
+                    pause();
+                }
+            }, baseDelay / speedMultiplier);
+        }
+
+        function pause() {
+            isPlaying = false;
+            clearInterval(interval);
+            playBtn.innerHTML = '<i class="bi bi-play-fill"></i> START';
+            playBtn.classList.replace('btn-warning', 'btn-primary');
+        }
+
+        window.nextStep = function() {
+            pause();
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                updateStep(currentStep);
+            }
+        };
+
+        window.prevStep = function() {
+            pause();
+            if (currentStep > 0) {
+                currentStep--;
+                updateStep(currentStep);
+            }
+        };
+
+        window.jumpToStep = function(val) {
+            pause();
+            updateStep(val);
+        };
+
+        window.resetAnimation = function() {
+            pause();
+            currentStep = 0;
+            updateStep(0);
+        };
+
+        updateStep(0);
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight') nextStep();
+            else if (event.key === 'ArrowLeft') prevStep();
+            else if (event.key === ' ') {
+                event.preventDefault();
+                togglePlay();
+            }
+        });
+    }
+
+    // Sekcja eksportu (opcjonalnie)
+    /*]]>*/
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

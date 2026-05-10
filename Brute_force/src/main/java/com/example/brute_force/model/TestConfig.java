@@ -1,0 +1,35 @@
+package com.example.brute_force.model;
+
+import java.util.List;
+
+public class TestConfig {
+    private int textLength = 30;
+    private int patternLength = 4;
+    private String dataType = "UNIFORM";
+    private long seed = 42;
+    private int repetitions = 1;
+    private String pattern = "aaaaa";
+    private int alphabetSize = 26;
+    private String patternPosition = "START"; // START, MIDDLE, END, MULTIPLE
+    private int matchCount = 1;
+
+    // Getters and Setters
+    public int getTextLength() { return textLength; }
+    public void setTextLength(int textLength) { this.textLength = textLength; }
+    public int getPatternLength() { return patternLength; }
+    public void setPatternLength(int patternLength) { this.patternLength = patternLength; }
+    public String getDataType() { return dataType; }
+    public void setDataType(String dataType) { this.dataType = dataType; }
+    public long getSeed() { return seed; }
+    public void setSeed(long seed) { this.seed = seed; }
+    public int getRepetitions() { return repetitions; }
+    public void setRepetitions(int repetitions) { this.repetitions = repetitions; }
+    public String getPattern() { return pattern; }
+    public void setPattern(String pattern) { this.pattern = pattern; }
+    public int getAlphabetSize() { return alphabetSize; }
+    public void setAlphabetSize(int alphabetSize) { this.alphabetSize = alphabetSize; }
+    public String getPatternPosition() { return patternPosition; }
+    public void setPatternPosition(String patternPosition) { this.patternPosition = patternPosition; }
+    public int getMatchCount() { return matchCount; }
+    public void setMatchCount(int matchCount) { this.matchCount = matchCount; }
+}

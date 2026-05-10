@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  brute-force-app:
+    build: .
+    container_name: brute-force-visualizer
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JAVA_OPTS=-Xms256m -Xmx512m

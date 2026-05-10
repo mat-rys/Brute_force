@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wyniki i Porównania | BF-EDU</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="bi bi-cpu-fill me-2" style="color: var(--primary);"></i>
+            <span>BF-EDU <small class="text-muted">| Wyniki Testów</small></span>
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
+            <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
+            <a class="nav-link active" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+        <!-- Panel Konfiguracji Macierzy -->
+        <div class="col-xl-4">
+            <div class="card shadow border-primary h-100">
+                <div class="card-header bg-primary py-3">
+                    <h5 class="mb-0 text-white"><i class="bi bi-gear-wide-connected me-2"></i>Panel Generowania Macierzy Testów</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/experiments/run}" th:object="${multiConfig}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label text-dim small fw-bold">DŁUGOŚĆ TEKSTU (n) - wartości po przecinku</label>
+                            <input type="text" th:field="*{textLengths}" class="form-control bg-dark text-white border-secondary" placeholder="np. 1000, 5000, 10000">
+                            <div class="config-help">Wprowadź kilka wartości, aby porównać skalowalność.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-dim small fw-bold">DŁUGOŚĆ WZORCA (m)</label>
+                            <input type="text" th:field="*{patternLengths}" class="form-control bg-dark text-white border-secondary" placeholder="np. 10, 20">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-dim small fw-bold">TYPY DANYCH</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" value="NATURAL" id="typeNatural" th:field="*{dataTypes}">
+                                    <label class="form-check-label text-white small" for="typeNatural">Naturalny</label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" value="UNIFORM" id="typeUniform" th:field="*{dataTypes}">
+                                    <label class="form-check-label text-white small" for="typeUniform">Jednostajny</label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" value="DNA" id="typeDNA" th:field="*{dataTypes}">
+                                    <label class="form-check-label text-white small" for="typeDNA">DNA</label>
+                                </div>
+                                <div class="form-check me-3">
+                                    <input class="form-check-input" type="checkbox" value="PERIODIC" id="typePeriodic" th:field="*{dataTypes}">
+                                    <label class="form-check-label text-white small" for="typePeriodic">Periodyczny</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="PATHOLOGICAL" id="typePath" th:field="*{dataTypes}">
+                                    <label class="form-check-label text-white small" for="typePath">Patologiczny</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-dim small fw-bold">ALFABET (σ)</label>
+                                <input type="text" th:field="*{alphabetSizes}" class="form-control bg-dark text-white border-secondary" placeholder="2, 4, 26">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-dim small fw-bold">SEED RNG</label>
+                                <input type="text" th:field="*{seeds}" class="form-control bg-dark text-white border-secondary" placeholder="42">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-dim small fw-bold">POZYCJA WZORCA</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="form-check me-2">
+                                    <input class="form-check-input" type="checkbox" value="START" id="posStart" th:field="*{patternPositions}">
+                                    <label class="form-check-label text-white small" for="posStart">Początek</label>
+                                </div>
+                                <div class="form-check me-2">
+                                    <input class="form-check-input" type="checkbox" value="MIDDLE" id="posMid" th:field="*{patternPositions}">
+                                    <label class="form-check-label text-white small" for="posMid">Środek</label>
+                                </div>
+                                <div class="form-check me-2">
+                                    <input class="form-check-input" type="checkbox" value="END" id="posEnd" th:field="*{patternPositions}">
+                                    <label class="form-check-label text-white small" for="posEnd">Koniec</label>
+                                </div>
+                                <div class="form-check me-2">
+                                    <input class="form-check-input" type="checkbox" value="RANDOM" id="posRand" th:field="*{patternPositions}">
+                                    <label class="form-check-label text-white small" for="posRand">Losowo</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="MULTIPLE" id="posMult" th:field="*{patternPositions}">
+                                    <label class="form-check-label text-white small" for="posMult">Wiele</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <label class="form-label text-dim small fw-bold">WYSTĄPIENIA</label>
+                                <input type="text" th:field="*{matchCounts}" class="form-control bg-dark text-white border-secondary">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-dim small fw-bold">REPETYCJE</label>
+                                <input type="number" th:field="*{repetitions}" class="form-control bg-dark text-white border-secondary">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-play-circle-fill me-2"></i>URUCHOM BENCHMARK
+                        </button>
+                    </form>
+                    <a href="/experiments/clear" class="btn btn-outline-danger w-100 mt-2 btn-sm">Wyczyść listę wyników</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Wyników -->
+        <div class="col-xl-8">
+            <div class="card shadow border-accent">
+                <div class="card-header bg-accent text-dark py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-table me-2"></i>WYNIKI EKSPERYMENTÓW</h5>
+                    <span class="badge bg-dark" th:text="${experimentResults.size() + ' testów'}">0 testów</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0 academic-table">
+                            <thead class="bg-black">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Typ</th>
+                                    <th>n</th>
+                                    <th>m</th>
+                                    <th>σ</th>
+                                    <th>Seed</th>
+                                    <th>Poz.</th>
+                                    <th>Wyst.</th>
+                                    <th>Por. (C)</th>
+                                    <th>Przes. (S)</th>
+                                    <th>C/n</th>
+                                    <th>Interpretacja</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-dim">
+                                <tr th:each="res : ${experimentResults}">
+                                    <td th:text="${res.id}" class="fw-bold text-primary">T1</td>
+                                    <td th:text="${res.dataType}">Naturalny</td>
+                                    <td th:text="${res.textLength}">1000</td>
+                                    <td th:text="${res.patternLength}">10</td>
+                                    <td th:text="${res.alphabetSize}">26</td>
+                                    <td th:text="${res.seed}">42</td>
+                                    <td th:text="${res.patternPosition}">Środek</td>
+                                    <td th:text="${res.occurrences}">1</td>
+                                    <td th:text="${res.comparisons}" class="text-accent">1072</td>
+                                    <td th:text="${res.shifts}">991</td>
+                                    <td class="fw-bold" th:text="${#numbers.formatDecimal(res.cn, 1, 2)}">1.07</td>
+                                    <td class="small" th:text="${res.difficultyExplanation}">average-case</td>
+                                </tr>
+                                <tr th:if="${experimentResults.isEmpty()}">
+                                    <td colspan="12" class="text-center py-5 text-muted">
+                                        Brak wyników w sesji. Użyj panelu po lewej, aby wygenerować testy.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

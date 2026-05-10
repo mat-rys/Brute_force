@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analiza Algorytmiczna | BF-EDU</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="bi bi-cpu-fill me-2" style="color: var(--primary);"></i>
+            <span>BF-EDU <small class="text-muted">| Analiza</small></span>
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
+            <a class="nav-link active" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
+            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-3 px-lg-5">
+    <header class="text-center mb-5">
+        <h1 class="academic-header" style="font-size: 2.8rem;">Analiza Matematyczna i Logiczna</h1>
+        <p class="text-muted mx-auto mb-0" style="max-width: 900px; font-size: 1.1rem; opacity: 0.9;">
+            Głębokie spojrzenie na strukturę algorytmu naiwnego, jego ograniczenia oraz zachowanie w zależności od entropii danych wejściowych.
+        </p>
+    </header>
+
+    <div class="row g-4">
+        <!-- IMPLEMENTACJA (PSEUDOKOD) - Teraz POZIOMO -->
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header"><i class="bi bi-code-slash me-2"></i>IMPLEMENTACJA (PSEUDOKOD)</div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7">
+                            <div class="code-container bg-black p-4 rounded" style="font-size: 1.1rem; border: 1px solid var(--border);">
+<pre class="mb-0 text-white" style="font-family: 'Consolas', monospace; line-height: 1.6;">
+<span class="text-primary">procedure</span> BFSearch(T, P):
+  n = length(T)
+  m = length(P)
+  <span class="text-primary">for</span> i from 0 <span class="text-primary">to</span> n - m:
+    j = 0
+    <span class="text-primary">while</span> j &lt; m <span class="text-primary">and</span> T[i+j] == P[j]:
+      j = j + 1
+    if j == m:
+      record_match(i) <span class="text-muted">// Rejestracja dopasowania</span>
+  <span class="text-primary">return</span> found_matches <span class="text-muted">// Zwrócenie wszystkich pozycji</span>
+</pre>
+                            </div>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="p-4 rounded border border-primary border-opacity-25 h-100 shadow-sm" style="background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(10px);">
+                                <div class="d-flex align-items-center mb-4">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded me-3" style="box-shadow: 0 0 15px var(--primary-glow);">
+                                        <i class="bi bi-list-ol text-primary fs-4"></i>
+                                    </div>
+                                    <h4 class="text-white mb-0 fw-bold" style="letter-spacing: 1px; text-shadow: 0 0 15px var(--primary-glow);">Kroki algorytmu</h4>
+                                </div>
+                                <div class="algorithm-steps">
+                                    <div class="step-item">
+                                        <div class="step-number">1</div>
+                                        <div class="step-text">Rozpoczynamy od pierwszego znaku tekstu.</div>
+                                    </div>
+                                    <div class="step-item">
+                                        <div class="step-number">2</div>
+                                        <div class="step-text">Porównujemy kolejne znaki tekstu ze wzorcem.</div>
+                                    </div>
+                                    <div class="step-item">
+                                        <div class="step-number">3</div>
+                                        <div class="step-text">Jeżeli wszystkie znaki są zgodne, oznacza to znalezienie wzorca w tekście.</div>
+                                    </div>
+                                    <div class="step-item">
+                                        <div class="step-number">4</div>
+                                        <div class="step-text">Jeżeli pojawi się różnica między znakami, porównanie zostaje przerwane.</div>
+                                    </div>
+                                    <div class="step-item">
+                                        <div class="step-number">5</div>
+                                        <div class="step-text">Następnie algorytm przesuwa się o jeden znak w prawo.</div>
+                                    </div>
+                                    <div class="step-item">
+                                        <div class="step-number">6</div>
+                                        <div class="step-text">Powtarzamy aż do końca tekstu.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCHEMAT BLOKOWY -->
+        <div class="col-12">
+            <div class="card shadow h-100">
+                <div class="card-header border-primary border-opacity-25 py-3">
+                    <i class="bi bi-diagram-3-fill me-2"></i>SCHEMAT BLOKOWY ALGORYTMU
+                </div>
+                <div class="card-body text-center p-4">
+                    <div class="diagram-container-huge">
+                        <img th:src="@{/diagram_blokowy.png}" alt="Schemat blokowy Brute Force" 
+                             class="diagram-image-huge">
+                    </div>
+                    <div class="explanation-text text-start mx-auto p-4 rounded" style="max-width: 1000px; background: rgba(15, 23, 42, 0.6); border-left: 4px solid var(--primary); border-radius: 0 12px 12px 0 !important;">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="bi bi-info-circle-fill text-primary me-2 fs-5"></i>
+                            <strong class="text-primary fs-5">Analiza przepływu logicznego:</strong>
+                        </div>
+                        <p class="mb-0 text-white" style="font-size: 1.05rem; line-height: 1.7; opacity: 0.9;">
+                            Algorytm brute force sprawdza wzorzec na każdej możliwej pozycji tekstu, przesuwając go zawsze o 1 znak. Dla każdego przesunięcia porównuje znaki od lewej do prawej, aż do pierwszej niezgodności albo pełnego dopasowania. Gdy pojawi się mismatch, bieżąca próba jest przerywana i algorytm przechodzi do następnej pozycji. Jeśli wszystkie znaki wzorca pasują, zapisuje pozycję dopasowania, ale nie kończy pracy — dalej sprawdza kolejne przesunięcia, żeby wykryć także nakładające się wystąpienia. Dzięki temu przeszukuje cały tekst dokładnie, choć w najgorszym przypadku wykonuje wiele powtórnych porównań.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ZŁOŻONOŚĆ -->
+        <div class="col-12">
+            <div class="card shadow border-0 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #020617 100%);">
+                <div class="card-header border-0 bg-transparent py-4">
+                    <h4 class="mb-0"><i class="bi bi-graph-up me-2 text-primary"></i>ANALIZA ZŁOŻONOŚCI OBLICZENIOWEJ</h4>
+                </div>
+                <div class="card-body pb-5">
+                    <div class="row g-4 text-center">
+                        <div class="col-md-4">
+                            <div class="stat-box-large h-100 p-4" style="background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3);">
+                                <span class="badge bg-accent mb-3 p-2 px-3">OPTIMISTYCZNA (Best Case)</span>
+                                <h2 class="stat-value-large text-accent mb-3">O(n)</h2>
+                                <p class="text-white mb-4 fw-medium">Pierwszy znak wzorca od razu nie pasuje do tekstu na każdej pozycji, więc algorytm wykonuje tylko jedno porównanie na przesunięcie.</p>
+                                <div class="p-3 bg-black rounded font-monospace" style="color: #10b981;">Liczba porównań &approx; n - m + 1</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-box-large h-100 p-4" style="background: rgba(56, 189, 248, 0.08); border-color: rgba(56, 189, 248, 0.3);">
+                                <span class="badge bg-primary mb-3 p-2 px-3">PRZECIĘTNA (Average Case)</span>
+                                <h2 class="stat-value-large text-primary mb-3">O(n)</h2>
+                                <p class="text-white mb-4 fw-medium">Dla danych losowych mismatch zwykle pojawia się szybko, dlatego algorytm średnio wykonuje liniową liczbę porównań.</p>
+                                <div class="p-3 bg-black rounded font-monospace" style="color: var(--primary);">Liczba porównań rośnie liniowo względem n</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-box-large h-100 p-4" style="background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.3);">
+                                <span class="badge bg-danger mb-3 p-2 px-3">PESYMISTYCZNA (Worst Case)</span>
+                                <h2 class="stat-value-large text-danger mb-3">O(n &times; m)</h2>
+                                <p class="text-white mb-4 fw-medium">Wiele kolejnych znaków pasuje, a błąd pojawia się dopiero na końcu wzorca, więc algorytm sprawdza prawie cały wzorzec dla każdego przesunięcia.</p>
+                                <div class="p-3 bg-black rounded font-monospace" style="color: var(--bs-danger);">Liczba porównań &approx; (n - m + 1) · m</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<footer class="mt-5 pb-5">
+    <div class="container text-center py-4 border-top border-secondary">
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

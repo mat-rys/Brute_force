@@ -5,7 +5,7 @@ services:
     build: .
     container_name: brute-force-visualizer
     ports:
-      - "8080:8080"
+      - "8091:8091"
     restart: unless-stopped
     environment:
       - SPRING_PROFILES_ACTIVE=prod

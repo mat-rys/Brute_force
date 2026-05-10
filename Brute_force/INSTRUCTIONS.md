@@ -19,7 +19,7 @@ Projekt jest pełną aplikacją webową Spring Boot umożliwiającą analizę i 
    ```
 4. Otwórz przeglądarkę i przejdź pod adres:
    ```
-   http://localhost:8080
+   http://localhost:8091
    ```
 
 ## Funkcje aplikacji

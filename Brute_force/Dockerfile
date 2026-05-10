@@ -21,7 +21,7 @@ WORKDIR /app
 COPY --from=build /app/target/Brute_force-0.0.1-SNAPSHOT.jar app.jar
 
 # Port na którym działa aplikacja
-EXPOSE 8080
+EXPOSE 8091
 
 # Uruchomienie aplikacji
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -157,6 +157,100 @@
             </div>
         </div>
 
+        <!-- ZŁOŻONOŚĆ PAMIĘCIOWA I WPŁYW DANYCH -->
+        <div class="col-lg-4">
+            <div class="card shadow h-100">
+                <div class="card-header border-primary border-opacity-25 py-3">
+                    <i class="bi bi-memory me-2 text-primary"></i>ZŁOŻONOŚĆ PAMIĘCIOWA
+                </div>
+                <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+                    <h2 class="stat-value-large text-primary mb-3">O(1)</h2>
+                    <p class="text-white mb-0" style="font-size: 1.05rem; opacity: 0.9;">
+                        Algorytm Brute Force posiada <strong>stałą złożoność pamięciową</strong>, ponieważ nie tworzy dodatkowych struktur danych ani tablic pomocniczych. Wyszukiwanie realizowane jest wyłącznie przy użyciu indeksów i zmiennych pomocniczych.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow h-100">
+                <div class="card-header border-primary border-opacity-25 py-3">
+                    <i class="bi bi-bar-chart-steps me-2 text-primary"></i>WPŁYW STRUKTURY DANYCH WEJŚCIOWYCH
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start mb-3">
+                        <i class="bi bi-info-square-fill text-primary me-3 fs-4"></i>
+                        <p class="text-white mb-0" style="font-size: 1.1rem; line-height: 1.6; opacity: 0.9;">
+                            Wydajność algorytmu Brute Force jest silnie uzależniona od <strong>entropii i struktury danych</strong>. 
+                            Mały alfabet (np. dane DNA), wysoka powtarzalność znaków (dane periodyczne) oraz liczne częściowe dopasowania 
+                            wymuszają na algorytmie częstsze wchodzenie do pętli wewnętrznej, co drastycznie zwiększa liczbę porównań.
+                        </p>
+                    </div>
+                    <div class="p-3 rounded" style="background: rgba(56, 189, 248, 0.05); border-left: 4px solid var(--primary);">
+                        <small class="text-primary fw-bold text-uppercase" style="letter-spacing: 1px;">Kluczowa obserwacja:</small>
+                        <p class="text-white-50 small mb-0 mt-1">Im więcej "prawie dopasowań" (mismatch na ostatnim znaku wzorca), tym bliżej jesteśmy teoretycznego pesymistycznego czasu O(n &times; m).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BRAK OPTYMALIZACJI -->
+        <div class="col-lg-6">
+            <div class="card shadow h-100 border-warning border-opacity-10">
+                <div class="card-header border-warning border-opacity-25 py-3 text-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>BRAK MECHANIZMÓW OPTYMALIZACJI
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-white mb-3" style="font-size: 1.05rem; line-height: 1.6; opacity: 0.9;">
+                        Algorytm Brute Force nie wykorzystuje <strong>preprocessingu wzorca</strong> ani mechanizmów inteligentnego przeskakiwania tekstu (tzw. <em>shift functions</em>).
+                    </p>
+                    <ul class="text-white-50 small" style="line-height: 1.5;">
+                        <li class="mb-2">Po każdym mismatchu wzorzec przesuwany jest dokładnie o <strong>jeden znak</strong>.</li>
+                        <li class="mb-2">Prowadzi to do wielokrotnego porównywania tych samych fragmentów tekstu, które zostały już sprawdzone w poprzednich krokach.</li>
+                        <li>Brak pamięci o "historii porównań" czyni go mniej wydajnym od algorytmów takich jak KMP, Boyer-Moore czy Rabin-Karp.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ZASTOSOWANIA -->
+        <div class="col-lg-6">
+            <div class="card shadow h-100 border-success border-opacity-10">
+                <div class="card-header border-success border-opacity-25 py-3 text-success">
+                    <i class="bi bi-check-circle-fill me-2"></i>ZASTOSOWANIA PRAKTYCZNE
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-white-50 small mb-3">Pomimo niskiej wydajności w najgorszym przypadku, algorytm Brute Force jest stosowany w:</p>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 h-100">
+                                <strong class="d-block text-success small">Edukacja</strong>
+                                <span class="text-white-50" style="font-size: 0.8rem;">Podstawa nauki algorytmiki tekstowej.</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 h-100">
+                                <strong class="d-block text-success small">Benchmarking</strong>
+                                <span class="text-white-50" style="font-size: 0.8rem;">Punkt odniesienia dla innych metod.</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 h-100">
+                                <strong class="d-block text-success small">Analiza DNA</strong>
+                                <span class="text-white-50" style="font-size: 0.8rem;">Wyszukiwanie krótkich sekwencji.</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 h-100">
+                                <strong class="d-block text-success small">Weryfikacja</strong>
+                                <span class="text-white-50" style="font-size: 0.8rem;">Testowanie poprawności algorytmów.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 </div>

@@ -276,6 +276,197 @@
     </div>
 </div>
 
+<!-- SEKCJA INFORMACYJNA: KONFIGURACJA EKSPERYMENTU -->
+<div class="container-fluid px-4">
+    <div class="row mt-4 mb-5">
+        <div class="col-12">
+            <div class="card shadow border-info border-opacity-25">
+                <div class="card-header bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-info-square-fill me-2"></i>PRZEWODNIK PO KONFIGURACJI EKSPERYMENTU
+                </div>
+                <div class="card-body">
+
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
+                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">1. Długość tekstu n</h5>
+                                <p class="small text-dim">Określa, ile znaków ma przeszukiwany tekst. Im większe n, tym więcej możliwych przesunięć wzorca i tym większy koszt całego wyszukiwania.</p>
+                                <div class="badge bg-primary bg-opacity-10 text-white border border-primary border-opacity-50">Wybór: np. 30, 100, 1000, 5000</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
+                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">2. Długość wzorca m</h5>
+                                <p class="small text-dim">Im większa długość wzorca m, tym więcej znaków algorytm musi potencjalnie porównać podczas jednego przesunięcia.</p>
+                                <div class="badge bg-primary bg-opacity-10 text-white border border-primary border-opacity-50">Wybór: np. 2, 4, 8, 16</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
+                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">3. Wielkość alfabetu &sigma;</h5>
+                                <p class="small text-dim">Określa liczbę różnych znaków użytych do generowania danych.</p>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    <span class="badge bg-dark border border-secondary">2 &rarr; binarne</span>
+                                    <span class="badge bg-dark border border-secondary">4 &rarr; DNA</span>
+                                    <span class="badge bg-dark border border-secondary">26 &rarr; A-Z</span>
+                                </div>
+                                <p class="small text-dim italic mb-0"><i class="bi bi-info-circle me-1"></i>Mały alfabet zwiększa liczbę podobieństw, duży przyspiesza wykrywanie mismatch.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
+                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">
+                                    4. Rozkład danych
+                                </h5>
+
+                                <p class="small text-dim mb-3">
+                                    Określa sposób generowania znaków w tekście oraz strukturę danych wejściowych.
+                                    Rozkład danych wpływa bezpośrednio na liczbę częściowych dopasowań,
+                                    liczbę porównań oraz rzeczywistą wydajność algorytmu Brute Force.
+                                </p>
+
+                                <ul class="list-unstyled small text-dim mb-0">
+
+                                    <li class="mb-3">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Tekst naturalny</strong> – dane przypominające język naturalny.
+                                        Litery występują nierównomiernie, dlatego pojawiają się częściowe dopasowania
+                                        typowe dla rzeczywistych tekstów.
+                                    </li>
+
+                                    <li class="mb-3">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Rozkład jednostajny</strong> – każdy znak alfabetu ma podobne
+                                        prawdopodobieństwo wystąpienia. Mismatch zwykle pojawia się szybko,
+                                        dlatego liczba porównań pozostaje niska.
+                                    </li>
+
+                                    <li class="mb-3">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Dane patologiczne</strong> – specjalnie skonstruowane dane wymuszające
+                                        dużą liczbę porównań. Błąd pojawia się dopiero na końcu wzorca,
+                                        co prowadzi do worst-case O(n × m).
+                                    </li>
+
+                                    <li class="mb-3">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Dane periodyczne</strong> – tekst zawiera powtarzające się sekwencje,
+                                        np. <code>abcabcabc</code>. Powoduje to dużą liczbę częściowych dopasowań
+                                        i wielokrotne porównywanie podobnych fragmentów.
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>DNA / mały alfabet</strong> – niewielka liczba możliwych znaków
+                                        (np. A,C,G,T) zwiększa prawdopodobieństwo przypadkowych zgodności
+                                        i liczbę częściowych dopasowań.
+                                    </li>
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
+
+                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">
+                                    5. Pozycja wzorca
+                                </h5>
+
+                                <p class="small text-dim mb-3">
+                                    Określa sposób umieszczenia wzorca w tekście oraz lokalizację potencjalnych
+                                    dopasowań. Parametr wpływa na przebieg wyszukiwania i liczbę wykonywanych
+                                    porównań przez algorytm Brute Force.
+                                </p>
+
+                                <ul class="list-unstyled small text-dim mb-3">
+
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Początek</strong> – wzorzec znajduje się na pierwszych pozycjach tekstu.
+                                    </li>
+
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Środek</strong> – dopasowanie występuje w centralnej części tekstu.
+                                    </li>
+
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Koniec</strong> – algorytm musi przeszukać prawie cały tekst przed znalezieniem dopasowania.
+                                    </li>
+
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Losowo</strong> – pozycja wybierana jest przez generator pseudolosowy RNG.
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-dot text-primary"></i>
+                                        <strong>Wiele wystąpień</strong> – wzorzec pojawia się w kilku miejscach tekstu.
+                                    </li>
+
+                                </ul>
+
+                                <p class="small text-dim italic mb-0">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Parametr pozwala analizować wpływ lokalizacji wzorca na liczbę porównań,
+                                    liczbę przesunięć oraz wykrywanie pojedynczych i wielokrotnych dopasowań.
+                                </p>
+
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
+
+                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">
+                                    6. Seed RNG
+                                </h5>
+
+                                <p class="small text-dim mb-3">
+                                    Seed RNG (Random Number Generator) określa początkowy stan generatora
+                                    pseudolosowego używanego do tworzenia danych testowych. Dzięki temu
+                                    identyczne parametry eksperymentu generują dokładnie te same dane wejściowe.
+                                </p>
+
+                                <ul class="list-unstyled small text-dim mb-3">
+
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        Zapewnia powtarzalność eksperymentów.
+                                    </li>
+
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        Pozwala porównywać wyniki między różnymi uruchomieniami aplikacji.
+                                    </li>
+
+                                    <li class="mb-2">
+                                        <i class="bi bi-dot text-primary"></i>
+                                        Umożliwia generowanie identycznych danych na różnych komputerach.
+                                    </li>
+
+                                    <li>
+                                        <i class="bi bi-dot text-primary"></i>
+                                        Zmiana seed powoduje wygenerowanie innego układu znaków.
+                                    </li>
+
+                                </ul>
+
+                                <p class="small text-dim italic mb-0">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Parametr wpływa wyłącznie na scenariusze losowe i nie zmienia działania
+                                    algorytmu Brute Force, lecz strukturę generowanych danych wejściowych.
+                                </p>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <footer class="mt-5 pb-5">
     <div class="container text-center py-4 border-top border-secondary">
     </div>

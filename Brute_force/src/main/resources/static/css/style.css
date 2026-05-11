@@ -103,6 +103,10 @@ body {
     font-size: 1rem;
 }
 
+.italic {
+    font-style: italic;
+}
+
 /* Tabele - poprawa czytelności */
 .academic-table {
     border-collapse: separate;

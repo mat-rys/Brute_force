@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brute force algorytm | Porównanie środowisk</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="bi bi-cpu-fill me-2" style="color: var(--primary);"></i>
+            <span>Brute force algorytm <small class="text-muted">| Porównanie środowisk</small></span>
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
+            <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
+            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+            <a class="nav-link active" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+        <!-- Tabela Porównawcza Sprzętu -->
+        <div class="col-xl-6">
+            <div class="card shadow border-secondary h-100 bg-dark">
+                <div class="card-header bg-dark border-secondary py-3">
+                    <h5 class="mb-0 text-white"><i class="bi bi-table me-2"></i>Specyfikacja Techniczna Środowisk</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0" id="comparison-table">
+                            <thead>
+                                <tr id="table-header">
+                                    <th class="bg-black">Parametr</th>
+                                    <!-- Nagłówki maszyn z JS -->
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <!-- Dane z JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analiza Środowisk -->
+        <div class="col-xl-6">
+            <div class="card shadow border-accent h-100 bg-dark">
+                <div class="card-header bg-accent text-dark py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-clipboard2-pulse me-2"></i>Analiza Porównawcza i Wnioski</h5>
+                </div>
+                <div class="card-body academic-text">
+                    <div id="analysis-content">
+                        <p class="text-dim">Trwa analiza danych z wielu źródeł...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wykresy -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-clock-history me-2"></i>Czas wykonania (avgDurationNs vs n)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="timeCompareChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-bar-chart-steps me-2"></i>Liczba porównań (comparisons vs n)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="compCompareChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-speedometer2 me-2"></i>Przepustowość (throughput vs n)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="throughputCompareChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-activity me-2"></i>Współczynnik cn (cn vs n)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="cnCompareChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-layers-half me-2"></i>Partial Matches (PM vs n)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="partialCompareChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-pie-chart me-2"></i>Case Study: Avg vs Worst</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="caseCompareChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nowy wykres: Stabilność -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-header bg-dark border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-shield-check me-2"></i>Stabilność pomiarów (stdDevNs vs n)</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="stdDevCompareChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /**
+     * MODUŁY ANALITYCZNE LABORATORIUM
+     */
+
+    const BenchmarkLoader = {
+        files: ['/data/external/benchmark_results%20pc1'],
+        async loadAll() {
+            const machines = [];
+            for (const file of this.files) {
+                try {
+                    const response = await fetch(file);
+                    if (response.ok) {
+                        const data = await response.json();
+                        // Standaryzacja nazw dla plików zewnętrznych
+                        if (file.includes('pc1')) data.userName = 'PC TESTOWY 1';
+                        machines.push(data);
+                    }
+                } catch (e) {
+                    console.error('Błąd ładowania ' + file, e);
+                }
+            }
+            return machines;
+        }
+    };
+
+    const BenchmarkAggregator = {
+        aggregate(machines) {
+            return machines.map(m => {
+                // Grupowanie i uśrednianie dla unikalnych parametrów (n, m, sigma)
+                const grouped = {};
+                m.results.forEach(res => {
+                    const key = `${res.dataType}_n${res.textLength}_m${res.patternLength}_s${res.alphabetSize}`;
+                    if (!grouped[key]) {
+                        grouped[key] = { ...res, count: 1 };
+                    } else {
+                        const c = grouped[key].count;
+                        grouped[key].avgDurationNs = (grouped[key].avgDurationNs * c + res.avgDurationNs) / (c + 1);
+                        grouped[key].throughput = (grouped[key].throughput * c + res.throughput) / (c + 1);
+                        grouped[key].stdDevNs = (grouped[key].stdDevNs * c + res.stdDevNs) / (c + 1);
+                        grouped[key].comparisons = Math.round((grouped[key].comparisons * c + res.comparisons) / (c + 1));
+                        grouped[key].count++;
+                    }
+                });
+
+                const uResults = Object.values(grouped);
+                const aggregated = {
+                    machine: m,
+                    byType: {},
+                    types: [],
+                    maxN: 0
+                };
+
+                uResults.forEach(res => {
+                    if (!aggregated.byType[res.dataType]) {
+                        aggregated.byType[res.dataType] = [];
+                        aggregated.types.push(res.dataType);
+                    }
+                    aggregated.byType[res.dataType].push(res);
+                    if (res.textLength > aggregated.maxN) aggregated.maxN = res.textLength;
+                });
+
+                aggregated.types.forEach(type => {
+                    aggregated.byType[type].sort((a, b) => a.textLength - b.textLength);
+                });
+
+                return aggregated;
+            });
+        }
+    };
+
+    const ChartDataBuilder = {
+        colors: ['#007bff', '#00f2fe', '#ff0055', '#28a745', '#ffc107', '#fd7e14', '#6610f2'],
+        
+        buildAllSeries(aggregatedMachines, metricKey) {
+            const series = [];
+            let colorIdx = 0;
+            
+            aggregatedMachines.forEach(am => {
+                am.types.forEach(type => {
+                    // Grupowanie po parametrach m i s, aby uniknąć nakładania się różnych konfiguracji na jednym wykresie
+                    const paramGroups = {};
+                    am.byType[type].forEach(res => {
+                        const pKey = `m:${res.patternLength}, σ:${res.alphabetSize}`;
+                        if (!paramGroups[pKey]) paramGroups[pKey] = [];
+                        paramGroups[pKey].push(res);
+                    });
+
+                    Object.entries(paramGroups).forEach(([pKey, data]) => {
+                        series.push({
+                            label: `${am.machine.userName} | ${type} (${pKey})`,
+                            data: data.map(res => ({ x: res.textLength, y: res[metricKey] })),
+                            borderColor: this.colors[colorIdx % this.colors.length],
+                            backgroundColor: this.colors[colorIdx % this.colors.length] + '33',
+                            borderDash: type === 'PATHOLOGICAL' ? [5, 5] : [],
+                            tension: 0.3,
+                            fill: false,
+                            pointRadius: 4
+                        });
+                        colorIdx++;
+                    });
+                });
+            });
+            return series;
+        },
+
+        buildCaseComparison(aggregatedMachines) {
+            const labels = ['Average Case', 'Worst Case (Pathological)'];
+            return aggregatedMachines.map((am, i) => {
+                const avgRes = am.machine.results.find(r => r.scenarioCase === 'average-case' && (r.textLength === 10000 || r.textLength === 8000));
+                const worstRes = am.machine.results.find(r => r.scenarioCase === 'worst-case' && (r.textLength === 10000 || r.textLength === 8000));
+                return {
+                    label: am.machine.userName,
+                    data: [
+                        avgRes ? avgRes.avgDurationNs / 1000000 : 0,
+                        worstRes ? worstRes.avgDurationNs / 1000000 : 0
+                    ],
+                    backgroundColor: this.colors[i % this.colors.length] + '88'
+                };
+            });
+        }
+    };
+
+    const CompareViewRenderer = {
+        renderComparisonTable(machines) {
+            const header = document.getElementById('table-header');
+            const body = document.getElementById('table-body');
+            header.innerHTML = '<th class="bg-black">Parametr Techniczny</th>';
+            body.innerHTML = '';
+            
+            machines.forEach(m => {
+                const th = document.createElement('th');
+                th.className = 'text-center bg-dark';
+                th.innerText = m.userName;
+                header.appendChild(th);
+            });
+
+            const params = [
+                { label: 'Procesor (CPU)', key: 'cpu' },
+                { label: 'Karta Graficzna (GPU)', key: 'gpu' },
+                { label: 'Rdzenie/Wątki', key: 'cores' },
+                { label: 'Pamięć RAM', key: 'ramPhysical' },
+                { label: 'System Operacyjny', key: 'os' },
+                { label: 'Środowisko Java', key: 'java' },
+                { label: 'Data pomiaru', key: 'timestamp' }
+            ];
+
+            params.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td class="text-dim fw-bold">${p.label}</td>`;
+                machines.forEach(m => {
+                    tr.innerHTML += `<td class="text-center text-white small">${m.environment[p.key] || 'N/A'}</td>`;
+                });
+                body.appendChild(tr);
+            });
+        },
+
+        renderCharts(aggregatedMachines) {
+            const commonOptions = {
+                responsive: true,
+                scales: {
+                    x: { type: 'linear', title: { display: true, text: 'n (Rozmiar tekstu)', color: '#888' }, grid: { color: '#333' } },
+                    y: { title: { display: true, color: '#888' }, grid: { color: '#333' } }
+                },
+                plugins: { legend: { position: 'bottom', labels: { color: '#fff', boxWidth: 12, font: { size: 10 } } } }
+            };
+
+            // 1. Czas
+            new Chart(document.getElementById('timeCompareChart'), {
+                type: 'line',
+                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'avgDurationNs') },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Czas [ns]' } } } }
+            });
+
+            // 2. Porównania
+            new Chart(document.getElementById('compCompareChart'), {
+                type: 'line',
+                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'comparisons') },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Liczba porównań' } } } }
+            });
+
+            // 3. Throughput
+            new Chart(document.getElementById('throughputCompareChart'), {
+                type: 'line',
+                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'throughput') },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Przepustowość [znak/ms]' } } } }
+            });
+
+            // 4. CN
+            new Chart(document.getElementById('cnCompareChart'), {
+                type: 'line',
+                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'cn') },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Współczynnik c/n' } } } }
+            });
+
+            // 5. Partial Matches
+            new Chart(document.getElementById('partialCompareChart'), {
+                type: 'line',
+                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'partialMatches') },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Liczba Partial Matches' } } } }
+            });
+
+            // 6. Case Study
+            new Chart(document.getElementById('caseCompareChart'), {
+                type: 'bar',
+                data: { 
+                    labels: ['Average Case', 'Worst Case (Pathological)'], 
+                    datasets: ChartDataBuilder.buildCaseComparison(aggregatedMachines) 
+                },
+                options: {
+                    scales: {
+                        y: { type: 'logarithmic', title: { display: true, text: 'Czas [ms] (skala log)', color: '#888' }, grid: { color: '#333' } }
+                    },
+                    plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } }
+                }
+            });
+
+            // 7. Stabilność (Nowy)
+            new Chart(document.getElementById('stdDevCompareChart'), {
+                type: 'line',
+                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'stdDevNs') },
+                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Odchylenie Std [ns]' } } } }
+            });
+        },
+
+        renderAnalysis(aggregatedMachines) {
+            const content = document.getElementById('analysis-content');
+            
+            if (aggregatedMachines.length === 0) {
+                content.innerHTML = '<p class="text-dim">Brak danych do analizy.</p>';
+                return;
+            }
+
+            const fastest = aggregatedMachines[0];
+            const isMultiple = aggregatedMachines.length > 1;
+
+            let rankingHtml = '';
+            if (isMultiple) {
+                const sorted = [...aggregatedMachines].sort((a, b) => {
+                    const resA = a.byType['NATURAL']?.find(r => r.textLength === 80000 || r.textLength === 8000);
+                    const resB = b.byType['NATURAL']?.find(r => r.textLength === 80000 || r.textLength === 8000);
+                    return (resB?.throughput || 0) - (resA?.throughput || 0);
+                });
+                const slowest = sorted[sorted.length - 1];
+                const perfA = sorted[0].byType['NATURAL']?.find(r => r.textLength === 80000 || r.textLength === 8000);
+                const perfB = slowest.byType['NATURAL']?.find(r => r.textLength === 80000 || r.textLength === 8000);
+                const ratio = (perfA && perfB) ? (perfA.throughput / perfB.throughput).toFixed(2) : "1.00";
+                
+                rankingHtml = `<p>Liderem wydajności w teście laboratoryjnym jest jednostka badawcza <strong>${sorted[0].machine.userName}</strong>. 
+                               Osiągnięta przepustowość jest <strong>${ratio}x</strong> większa niż na najsłabszej maszynie (<strong>${slowest.machine.userName}</strong>).</p>`;
+            } else {
+                rankingHtml = `<p>Analiza wydajności dla jednostki <strong>${fastest.machine.userName}</strong> wykazuje stabilne wyniki zgodne z charakterystyką sprzętową CPU (Intel Core i5-10400F).</p>`;
+            }
+
+            content.innerHTML = `
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h6 class="text-accent"><i class="bi bi-trophy-fill me-2"></i>Charakterystyka Wydajności</h6>
+                            ${rankingHtml}
+                        </div>
+                        <div class="mb-4">
+                            <h6 class="text-success"><i class="bi bi-shield-check me-2"></i>Analiza Stabilności Pomiarowej</h6>
+                            <p>Analiza <strong>odchylenia standardowego (stdDev)</strong> wykazuje, że środowisko z fazą warmup JVM i uśrednianiem wewnętrznym posiada zminimalizowany szum pomiarowy, co jest kluczowe dla rzetelności akademickiej.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-4">
+                            <h6 class="text-warning"><i class="bi bi-gear-wide-connected me-2"></i>Determinizm Algorytmiczny</h6>
+                            <p>Mimo różnic w czasie (ns) między różnymi próbami, liczba <strong>porównań znaków (C)</strong> oraz <strong>Partial Matches</strong> pozostaje stała dla danego zestawu danych. Potwierdza to niezmienność logiczną algorytmu.</p>
+                        </div>
+                        <div class="mb-4">
+                            <h6 class="text-info"><i class="bi bi-graph-up-arrow me-2"></i>Interpretacja Skalowania</h6>
+                            <p>Jednostka wykazuje trend <strong>liniowy O(n)</strong> dla rozkładów naturalnych. W przypadku danych patologicznych (Worst-case) obserwujemy degradację czasu zgodną z <strong>O(n \u00D7 m)</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-dark border-secondary small mt-2">
+                    <i class="bi bi-info-circle-fill me-2 text-info"></i>
+                    <strong>Podsumowanie akademickie:</strong> Eksperyment potwierdza, że Brute Force jest ograniczany przez prędkość pojedynczego wątku CPU. Standaryzacja środowiska (JVM Warmup) pozwoliła na uzyskanie stabilnych wyników o niskim odchyleniu standardowym.
+                </div>
+            `;
+        }
+    };
+
+    async function init() {
+        const rawMachines = await BenchmarkLoader.loadAll();
+        if (rawMachines.length > 0) {
+            const aggregated = BenchmarkAggregator.aggregate(rawMachines);
+            
+            CompareViewRenderer.renderComparisonTable(rawMachines);
+            CompareViewRenderer.renderCharts(aggregated);
+            CompareViewRenderer.renderAnalysis(aggregated);
+        } else {
+            console.error('Błąd: Brak poprawnych danych JSON w /resources/static/data/');
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

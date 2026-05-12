@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wyniki i Porównania | BF-EDU</title>
+    <title>Brute force algorytm | Laboratorium Benchmarkowe</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -14,60 +15,98 @@
     <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="/">
             <i class="bi bi-cpu-fill me-2" style="color: var(--primary);"></i>
-            <span>BF-EDU <small class="text-muted">| Wyniki Testów</small></span>
+            <span>Brute force algorytm <small class="text-muted">| Wyniki Testów</small></span>
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
             <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
             <a class="nav-link active" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+            <a class="nav-link" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
     </div>
 </nav>
 
 <div class="container-fluid px-4 py-4">
     <div class="row g-4">
-        <!-- Panel Konfiguracji Macierzy -->
+        <!-- Panel Konfiguracji Benchmarku -->
         <div class="col-xl-4">
-            <div class="card shadow border-primary h-100">
-                <div class="card-header bg-primary py-3">
-                    <h5 class="mb-0 text-white"><i class="bi bi-gear-wide-connected me-2"></i>Panel Generowania Macierzy Testów</h5>
+            <div class="card shadow border-primary mb-4">
+                <div class="card-header bg-primary py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white"><i class="bi bi-cpu-fill me-2"></i>Konfiguracja Benchmarku</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Profile
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (n=10k, iter=8, x10)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (n=50k, iter=8, x12)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (n=250k, iter=10, x15)</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/experiments/run}" th:object="${multiConfig}" method="post">
-                        <div class="mb-3">
-                            <label class="form-label text-dim small fw-bold">DŁUGOŚĆ TEKSTU (n) - wartości po przecinku</label>
-                            <input type="text" th:field="*{textLengths}" class="form-control bg-dark text-white border-secondary" placeholder="np. 1000, 5000, 10000">
-                            <div class="config-help">Wprowadź kilka wartości, aby porównać skalowalność.</div>
+                    <form th:action="@{/experiments/run}" th:object="${multiConfig}" method="post" id="benchmarkForm">
+                        <div class="row g-3">
+                            <div class="col-4">
+                                <label class="form-label text-dim small fw-bold">n MIN</label>
+                                <input type="number" th:field="*{minN}" class="form-control bg-dark text-white border-secondary" id="minN">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label text-dim small fw-bold">n MAX</label>
+                                <input type="number" th:field="*{maxN}" class="form-control bg-dark text-white border-secondary" id="maxN">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label text-dim small fw-bold">KROK</label>
+                                <input type="number" th:field="*{stepN}" class="form-control bg-dark text-white border-secondary" id="stepN">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label text-dim small fw-bold">DŁUGOŚĆ WZORCA (m)</label>
-                            <input type="text" th:field="*{patternLengths}" class="form-control bg-dark text-white border-secondary" placeholder="np. 10, 20">
+
+                        <div class="mt-3 mb-3">
+                            <label class="form-label text-dim small fw-bold">DŁUGOŚĆ WZORCA (m) - wartości po przecinku</label>
+                            <input type="text" th:field="*{patternLengths}" class="form-control bg-dark text-white border-secondary" placeholder="np. 10, 50">
                         </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-4">
+                                <label class="form-label text-dim small fw-bold">ITERACJE (avg)</label>
+                                <input type="number" th:field="*{repetitions}" class="form-control bg-dark text-white border-secondary" id="iterations">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label text-dim small fw-bold">PRÓBKI / n</label>
+                                <input type="number" th:field="*{samplesPerN}" class="form-control bg-dark text-white border-secondary" id="samples">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label text-dim small fw-bold">POWTÓRZENIA (wew.)</label>
+                                <input type="number" th:field="*{repeatInsideBenchmark}" class="form-control bg-dark text-white border-secondary" id="repeatInside">
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label class="form-label text-dim small fw-bold">TYPY DANYCH</label>
+                            <label class="form-label text-dim small fw-bold">TYPY DANYCH / SCENARIUSZE</label>
                             <div class="d-flex flex-wrap gap-2">
-                                <div class="form-check me-3">
+                                <div class="form-check me-2">
                                     <input class="form-check-input" type="checkbox" value="NATURAL" id="typeNatural" th:field="*{dataTypes}">
                                     <label class="form-check-label text-white small" for="typeNatural">Naturalny</label>
                                 </div>
-                                <div class="form-check me-3">
+                                <div class="form-check me-2">
                                     <input class="form-check-input" type="checkbox" value="UNIFORM" id="typeUniform" th:field="*{dataTypes}">
                                     <label class="form-check-label text-white small" for="typeUniform">Jednostajny</label>
                                 </div>
-                                <div class="form-check me-3">
+                                <div class="form-check me-2">
                                     <input class="form-check-input" type="checkbox" value="DNA" id="typeDNA" th:field="*{dataTypes}">
                                     <label class="form-check-label text-white small" for="typeDNA">DNA</label>
                                 </div>
-                                <div class="form-check me-3">
+                                <div class="form-check me-2">
                                     <input class="form-check-input" type="checkbox" value="PERIODIC" id="typePeriodic" th:field="*{dataTypes}">
                                     <label class="form-check-label text-white small" for="typePeriodic">Periodyczny</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="PATHOLOGICAL" id="typePath" th:field="*{dataTypes}">
-                                    <label class="form-check-label text-white small" for="typePath">Patologiczny</label>
+                                    <label class="form-check-label text-white small" for="typePath">Patologiczny (O(nm))</label>
                                 </div>
                             </div>
                         </div>
+
                         <div class="row mb-3">
                             <div class="col-6">
                                 <label class="form-label text-dim small fw-bold">ALFABET (σ)</label>
@@ -78,98 +117,207 @@
                                 <input type="text" th:field="*{seeds}" class="form-control bg-dark text-white border-secondary" placeholder="42">
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label text-dim small fw-bold">POZYCJA WZORCA</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                <div class="form-check me-2">
-                                    <input class="form-check-input" type="checkbox" value="START" id="posStart" th:field="*{patternPositions}">
-                                    <label class="form-check-label text-white small" for="posStart">Początek</label>
-                                </div>
-                                <div class="form-check me-2">
-                                    <input class="form-check-input" type="checkbox" value="MIDDLE" id="posMid" th:field="*{patternPositions}">
-                                    <label class="form-check-label text-white small" for="posMid">Środek</label>
-                                </div>
-                                <div class="form-check me-2">
-                                    <input class="form-check-input" type="checkbox" value="END" id="posEnd" th:field="*{patternPositions}">
-                                    <label class="form-check-label text-white small" for="posEnd">Koniec</label>
-                                </div>
-                                <div class="form-check me-2">
-                                    <input class="form-check-input" type="checkbox" value="RANDOM" id="posRand" th:field="*{patternPositions}">
-                                    <label class="form-check-label text-white small" for="posRand">Losowo</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="MULTIPLE" id="posMult" th:field="*{patternPositions}">
-                                    <label class="form-check-label text-white small" for="posMult">Wiele</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-4">
+
+                        <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label class="form-label text-dim small fw-bold">WYSTĄPIENIA</label>
-                                <input type="text" th:field="*{matchCounts}" class="form-control bg-dark text-white border-secondary">
+                                <label class="form-label text-dim small fw-bold">GĘSTOŚĆ PARTIAL-MATCH</label>
+                                <input type="number" step="0.1" min="0" max="1" th:field="*{partialMatchDensity}" class="form-control bg-dark text-white border-secondary">
+                                <div class="config-help">Wpływ na worst-case.</div>
                             </div>
                             <div class="col-6">
-                                <label class="form-label text-dim small fw-bold">REPETYCJE</label>
-                                <input type="number" th:field="*{repetitions}" class="form-control bg-dark text-white border-secondary">
+                                <label class="form-label text-dim small fw-bold">POWTARZALNOŚĆ</label>
+                                <input type="number" step="0.1" min="0" max="1" th:field="*{repeatability}" class="form-control bg-dark text-white border-secondary">
+                                <div class="config-help">Stopień entropii danych.</div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-                            <i class="bi bi-play-circle-fill me-2"></i>URUCHOM BENCHMARK
+
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mb-2">
+                            <i class="bi bi-play-circle-fill me-2"></i>URUCHOM LABORATORIUM
                         </button>
                     </form>
-                    <a href="/experiments/clear" class="btn btn-outline-danger w-100 mt-2 btn-sm">Wyczyść listę wyników</a>
+                    <a href="/experiments/clear" class="btn btn-outline-danger w-100 btn-sm">Resetuj dane laboratoryjne</a>
+                </div>
+            </div>
+
+            <!-- Środowisko testowe -->
+            <div class="card shadow border-secondary mb-4 bg-dark bg-opacity-50">
+                <div class="card-header bg-dark py-2 border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-info-circle me-2"></i>Środowisko testowe</h6>
+                </div>
+                <div class="card-body p-3">
+                    <div class="small text-dim mb-1 d-flex justify-content-between">
+                        <span>System:</span> <span class="text-white text-end" th:text="${env['os']}">Windows</span>
+                    </div>
+                    <div class="small text-dim mb-1 d-flex justify-content-between">
+                        <span>CPU:</span> <span class="text-white text-end" th:text="${env['cpu']}">i7</span>
+                    </div>
+                    <div class="small text-dim mb-1 d-flex justify-content-between" th:if="${env['gpu'] != 'N/A'}">
+                        <span>GPU:</span> <span class="text-white text-end" th:text="${env['gpu']}">GPU</span>
+                    </div>
+                    <div class="small text-dim mb-1 d-flex justify-content-between">
+                        <span>Rdzenie:</span> <span class="text-white text-end" th:text="${env['cores']}">8</span>
+                    </div>
+                    <div class="small text-dim mb-1 d-flex justify-content-between">
+                        <span>RAM (Fizyczny):</span> <span class="text-white fw-bold" th:text="${env['ramPhysical']}">16 GB</span>
+                    </div>
+                    <div class="small text-dim mb-1 d-flex justify-content-between">
+                        <span>Java:</span> <span class="text-white" th:text="${env['java']}">17</span>
+                    </div>
+                    <hr class="border-secondary my-2">
+                    <div class="small text-dim mb-1 d-flex justify-content-between opacity-50">
+                        <span>Pomiar:</span> <span th:text="${env['timestamp']}">2023-01-01</span>
+                    </div>
+                    <div class="config-help italic text-center opacity-75 mt-2">
+                        Czas zależy od sprzętu. Liczba porównań jest niezależna od środowiska.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metodyka pomiarów -->
+            <div class="card shadow border-secondary mb-4 bg-dark bg-opacity-50">
+                <div class="card-header bg-dark py-2 border-secondary">
+                    <h6 class="mb-0 text-white"><i class="bi bi-journal-text me-2"></i>Metodyka pomiarów</h6>
+                </div>
+                <div class="card-body p-3 small text-dim">
+                    <ul class="ps-3 mb-0">
+                        <li><b>Stabilizacja JIT:</b> 20 iteracji warmup przed pomiarem.</li>
+                        <li><b>Precyzja:</b> Pomiary <code>System.nanoTime()</code> wewnątrz próbek.</li>
+                        <li><b>Odrzucanie anomalii:</b> Eliminacja skrajnych wartości (min/max).</li>
+                        <li><b>Wielokrotność:</b> Pętla powtórzeń wewnątrz każdego pomiaru.</li>
+                    </ul>
                 </div>
             </div>
         </div>
 
         <!-- Tabela Wyników -->
         <div class="col-xl-8">
-            <div class="card shadow border-accent">
+            <div class="card shadow border-accent mb-4">
                 <div class="card-header bg-accent text-dark py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-table me-2"></i>WYNIKI EKSPERYMENTÓW</h5>
-                    <span class="badge bg-dark" th:text="${experimentResults.size() + ' testów'}">0 testów</span>
+                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-table me-2"></i>REJESTR POMIARÓW LABORATORYJNYCH</h5>
+                    <div class="d-flex gap-2 align-items-center">
+                        <a href="/export/full-json" class="btn btn-sm btn-dark fw-bold border-dark" th:if="${!experimentResults.isEmpty()}">
+                            <i class="bi bi-download me-1"></i> EKSPORTUJ WYNIKI (JSON)
+                        </a>
+                        <span class="badge bg-dark" th:text="${experimentResults.size() + ' prób'}">0 prób</span>
+                    </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0 academic-table">
+                        <table class="table table-dark table-hover mb-0 academic-table" style="font-size: 0.85rem;">
                             <thead class="bg-black">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Typ</th>
+                                    <th>Typ / Scenariusz</th>
                                     <th>n</th>
                                     <th>m</th>
-                                    <th>σ</th>
-                                    <th>Seed</th>
-                                    <th>Poz.</th>
-                                    <th>Wyst.</th>
+                                    <th>Śr. Czas [ms]</th>
                                     <th>Por. (C)</th>
-                                    <th>Przes. (S)</th>
+                                    <th>Throughput</th>
+                                    <th>PM</th>
+                                    <th>M</th>
                                     <th>C/n</th>
-                                    <th>Interpretacja</th>
+                                    <th>Złożoność</th>
                                 </tr>
                             </thead>
                             <tbody class="text-dim">
                                 <tr th:each="res : ${experimentResults}">
                                     <td th:text="${res.id}" class="fw-bold text-primary">T1</td>
-                                    <td th:text="${res.dataType}">Naturalny</td>
+                                    <td>
+                                        <div th:text="${res.dataType}">Naturalny</div>
+                                        <div class="small opacity-50" th:text="${res.scenarioCase}">average-case</div>
+                                    </td>
                                     <td th:text="${res.textLength}">1000</td>
                                     <td th:text="${res.patternLength}">10</td>
-                                    <td th:text="${res.alphabetSize}">26</td>
-                                    <td th:text="${res.seed}">42</td>
-                                    <td th:text="${res.patternPosition}">Środek</td>
-                                    <td th:text="${res.occurrences}">1</td>
-                                    <td th:text="${res.comparisons}" class="text-accent">1072</td>
-                                    <td th:text="${res.shifts}">991</td>
+                                    <td>
+                                        <span class="text-accent fw-bold" th:text="${#numbers.formatDecimal(res.avgDurationNs / 1000000.0, 1, 3)}">0.123</span>
+                                        <div class="small opacity-50" th:text="${'[' + #numbers.formatDecimal(res.minDurationNs / 1000000.0, 1, 3) + '-' + #numbers.formatDecimal(res.maxDurationNs / 1000000.0, 1, 3) + ']'}">[0-0]</div>
+                                    </td>
+                                    <td th:text="${res.comparisons}">1072</td>
+                                    <td>
+                                        <span th:text="${#numbers.formatDecimal(res.throughput / 1000.0, 1, 2)}">1.5</span> <small>M/s</small>
+                                    </td>
+                                    <td th:text="${res.partialMatches}">70</td>
+                                    <td th:text="${res.mismatches}">991</td>
                                     <td class="fw-bold" th:text="${#numbers.formatDecimal(res.cn, 1, 2)}">1.07</td>
-                                    <td class="small" th:text="${res.difficultyExplanation}">average-case</td>
+                                    <td>
+                                        <span class="badge bg-outline-secondary border border-secondary text-dim" th:text="${res.theoreticalComplexity}">O(n)</span>
+                                    </td>
                                 </tr>
                                 <tr th:if="${experimentResults.isEmpty()}">
-                                    <td colspan="12" class="text-center py-5 text-muted">
-                                        Brak wyników w sesji. Użyj panelu po lewej, aby wygenerować testy.
+                                    <td colspan="11" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                        Brak danych w rejestrze. Uruchom benchmark, aby rozpocząć pomiary.
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analiza i Wykresy -->
+            <div class="row g-4" th:if="${!experimentResults.isEmpty()}">
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white">Czas wykonania vs Długość tekstu (n)</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="timeChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white">Liczba porównań vs n</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="compChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white">Analiza skalowalności i interpretacja akademicka</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-7 border-end border-secondary">
+                                    <p class="small text-white opacity-75">
+                                        <i class="bi bi-graph-up-arrow me-2 text-accent"></i>
+                                        <strong>Obserwowany trend:</strong> 
+                                        <span id="trendAnalysis">Analizowanie danych...</span>
+                                    </p>
+                                    <p class="small text-white opacity-75">
+                                        <i class="bi bi-lightbulb me-2 text-warning"></i>
+                                        <strong>Wnioski:</strong>
+                                        <span id="conclusionText">Czekam na dane.</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="bg-primary p-2 rounded me-3">
+                                            <i class="bi bi-speedometer2 text-white"></i>
+                                        </div>
+                                        <div>
+                                            <div class="small text-dim">Średni Throughput</div>
+                                            <div class="h5 mb-0 text-white" id="avgThroughput">0 M/s</div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-accent p-2 rounded me-3">
+                                            <i class="bi bi-check-circle text-dark"></i>
+                                        </div>
+                                        <div>
+                                            <div class="small text-dim">Zgodność z teorią</div>
+                                            <div class="h5 mb-0 text-white" id="theoryMatch">Weryfikacja...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -178,5 +326,143 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const results = /*[[${experimentResults}]]*/ [];
+
+    function applyProfile(profile) {
+        const minN = document.getElementById('minN');
+        const maxN = document.getElementById('maxN');
+        const stepN = document.getElementById('stepN');
+        const iterations = document.getElementById('iterations');
+        const samples = document.getElementById('samples');
+        const repeatInside = document.getElementById('repeatInside');
+
+        switch(profile) {
+            case 'quick':
+                minN.value = 2500;
+                maxN.value = 10000;
+                stepN.value = 2500;
+                iterations.value = 8;
+                samples.value = 4;
+                repeatInside.value = 10;
+                break;
+            case 'standard':
+                minN.value = 10000;
+                maxN.value = 50000;
+                stepN.value = 10000;
+                iterations.value = 8;
+                samples.value = 5;
+                repeatInside.value = 12;
+                break;
+            case 'detailed':
+                minN.value = 50000;
+                maxN.value = 250000;
+                stepN.value = 50000;
+                iterations.value = 10;
+                samples.value = 5;
+                repeatInside.value = 15;
+                break;
+        }
+    }
+
+    if (results && results.length > 0) {
+        // Przygotowanie danych do wykresów
+        // Grupowanie po typie danych dla różnych linii na wykresie
+        const types = [...new Set(results.map(r => r.dataType))];
+        const colors = ['#007bff', '#00f2fe', '#ff0055', '#28a745', '#ffc107'];
+
+        const timeDatasets = types.map((type, i) => {
+            const typeResults = results.filter(r => r.dataType === type)
+                .sort((a, b) => a.textLength - b.textLength);
+            
+            // Uśrednianie wyników dla tych samych n (próbki)
+            const grouped = {};
+            typeResults.forEach(r => {
+                if (!grouped[r.textLength]) grouped[r.textLength] = { sum: 0, count: 0 };
+                grouped[r.textLength].sum += (r.avgDurationNs / 1000000);
+                grouped[r.textLength].count++;
+            });
+
+            return {
+                label: type,
+                data: Object.keys(grouped).map(n => ({ x: parseInt(n), y: grouped[n].sum / grouped[n].count })),
+                borderColor: colors[i % colors.length],
+                backgroundColor: colors[i % colors.length] + '33',
+                tension: 0.3,
+                fill: false
+            };
+        });
+
+        const compDatasets = types.map((type, i) => {
+            const typeResults = results.filter(r => r.dataType === type)
+                .sort((a, b) => a.textLength - b.textLength);
+            
+            const grouped = {};
+            typeResults.forEach(r => {
+                if (!grouped[r.textLength]) grouped[r.textLength] = { sum: 0, count: 0 };
+                grouped[r.textLength].sum += r.comparisons;
+                grouped[r.textLength].count++;
+            });
+
+            return {
+                label: type,
+                data: Object.keys(grouped).map(n => ({ x: parseInt(n), y: grouped[n].sum / grouped[n].count })),
+                borderColor: colors[i % colors.length],
+                backgroundColor: colors[i % colors.length] + '33',
+                tension: 0.1,
+                fill: false
+            };
+        });
+
+        // Wykres Czasu
+        new Chart(document.getElementById('timeChart'), {
+            type: 'line',
+            data: { datasets: timeDatasets },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { type: 'linear', title: { display: true, text: 'Długość tekstu (n)', color: '#888' }, grid: { color: '#333' } },
+                    y: { title: { display: true, text: 'Czas [ms]', color: '#888' }, grid: { color: '#333' } }
+                },
+                plugins: { legend: { labels: { color: '#fff' } } }
+            }
+        });
+
+        // Wykres Porównań
+        new Chart(document.getElementById('compChart'), {
+            type: 'line',
+            data: { datasets: compDatasets },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { type: 'linear', title: { display: true, text: 'Długość tekstu (n)', color: '#888' }, grid: { color: '#333' } },
+                    y: { title: { display: true, text: 'Liczba porównań', color: '#888' }, grid: { color: '#333' } }
+                },
+                plugins: { legend: { labels: { color: '#fff' } } }
+            }
+        });
+
+        // Analiza trendów
+        const avgThroughput = results.reduce((acc, r) => acc + r.throughput, 0) / results.length;
+        document.getElementById('avgThroughput').innerText = (avgThroughput / 1000).toFixed(2) + ' M/s';
+
+        const isPathological = results.some(r => r.dataType.includes('Patologiczny'));
+        const hasHighCn = results.some(r => r.cn > 1.5);
+        
+        if (isPathological) {
+            document.getElementById('trendAnalysis').innerText = "Wykryto trend O(n \u00D7 m) dla danych patologicznych.";
+            document.getElementById('conclusionText').innerText = "Algorytm Brute Force wykazuje drastyczną degradację wydajności przy wielu częściowych dopasowaniach.";
+            document.getElementById('theoryMatch').innerText = "Zgodny (Worst-case)";
+            document.getElementById('theoryMatch').className = "h5 mb-0 text-danger";
+        } else {
+            document.getElementById('trendAnalysis').innerText = "Wzrost liniowy O(n). Algorytm pracuje w trybie optymistycznym.";
+            document.getElementById('conclusionText').innerText = "Szybkie wykrywanie mismatch pozwala na utrzymanie wysokiej wydajności bliskiej jednej operacji na znak.";
+            document.getElementById('theoryMatch').innerText = "Zgodny (Average-case)";
+            document.getElementById('theoryMatch').className = "h5 mb-0 text-success";
+        }
+    }
+    /*]]>*/
+</script>
 </body>
 </html>

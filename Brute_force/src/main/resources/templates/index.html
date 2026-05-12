@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profesjonalny Wizualizator Brute Force</title>
+    <title>Brute force algorytm</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -15,23 +15,20 @@
     <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="/">
             <i class="bi bi-cpu-fill me-2" style="color: var(--primary);"></i>
-            <span>BF-EDU <small class="text-muted">| Substring Matching Visualizer</small></span>
+            <span>Brute force algorytm</span>
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link active" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
             <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
             <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+            <a class="nav-link" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
     </div>
 </nav>
 
 <div class="container-fluid px-4 py-2">
     <header class="text-center mb-4">
-        <h1 class="academic-header">Laboratorium Wizualizacji: Brute Force</h1>
-        <p class="text-muted mx-auto mb-0" style="max-width: 800px; font-size: 0.95rem;">
-            Interaktywne środowisko analizy mikrokroków algorytmu wyszukiwania wzorca. 
-            Pozwala na obserwację mechaniki przesunięć i weryfikacji znaków w czasie rzeczywistym.
-        </p>
+        <h1 class="academic-header">Wizualizacja algorytmu</h1>
     </header>
 
     <!-- SEKACJA WIZUALIZACJI - PEŁNA SZEROKOŚĆ -->
@@ -39,7 +36,7 @@
         <div class="col-12">
             <div class="visualizer-full-width shadow-lg border-primary position-relative">
                 <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-2">
-                    <span class="fs-5 text-white fw-bold"><i class="bi bi-eye-fill me-2 text-primary"></i>POLE WIZUALIZACJI</span>
+                    <span class="fs-5 text-white fw-bold"><i class="bi bi-eye-fill me-2 text-primary"></i>Wizualizacja algorytmu</span>
                     <div class="d-flex align-items-center gap-4">
                         <div class="d-flex gap-3 me-3">
                             <div class="badge bg-dark border border-secondary p-2">
@@ -81,6 +78,9 @@
                         </button>
                         <button id="playBtn" class="btn btn-primary px-4 fw-bold" onclick="togglePlay()">
                             <i class="bi bi-play-fill"></i> START
+                        </button>
+                        <button id="stepBtn" class="btn btn-outline-info fw-bold" onclick="nextStepManually()">
+                            <i class="bi bi-chevron-right"></i> KROK PO KROKU
                         </button>
                         <button class="btn btn-dark border-secondary control-arrow" onclick="nextStep()" title="Dalej">
                             <i class="bi bi-arrow-right"></i>
@@ -131,60 +131,86 @@
         <!-- KONFIGURACJA -->
         <div class="col-lg-3">
             <div class="card shadow h-100">
-                <div class="card-header border-primary border-opacity-25">
-                    <i class="bi bi-sliders me-2"></i>KONFIGURACJA EKSPERYMENTU
+                <div class="card-header border-primary border-opacity-25 d-flex justify-content-between align-items-center py-2">
+                    <span class="small text-uppercase fw-bold"><i class="bi bi-sliders me-2"></i>Konfiguracja</span>
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" id="btn-auto" class="btn btn-outline-primary active" onclick="setMode('auto')">Parametry</button>
+                        <button type="button" id="btn-manual" class="btn btn-outline-primary" onclick="setMode('manual')">Własny tekst</button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <form th:action="@{/run}" th:object="${config}" method="post">
-                        <div class="mb-3">
-                            <label class="form-label">Długość tekstu (n)</label>
-                            <input type="number" th:field="*{textLength}" class="form-control form-control-sm" min="5" max="100000">
-                            <div class="config-help">Dla wizualizacji zaleca się &le; 30 znaków.</div>
+                        <div id="auto-params-container">
+                            <div class="mb-3">
+                                <label class="form-label text-white">Rozkład Danych</label>
+                                <select th:field="*{dataType}" id="dataType" class="form-select form-select-sm bg-dark text-white border-secondary" onchange="toggleFormFields()">
+                                    <option value="NATURAL">Tekst naturalny</option>
+                                    <option value="UNIFORM">Rozkład jednostajny</option>
+                                    <option value="PATHOLOGICAL">Dane patologiczne</option>
+                                    <option value="PERIODIC">Dane periodyczne</option>
+                                    <option value="DNA">Dane DNA / mały alfabet</option>
+                                    <option value="CUSTOM" style="display:none;">Własny</option>
+                                </select>
+                                <div class="config-help">Wpływa na strukturę tekstu i wzorca.</div>
+                            </div>
+                            <div class="mb-3" id="n-container">
+                                <label class="form-label text-white">Długość tekstu (n)</label>
+                                <input type="number" th:field="*{textLength}" id="textLength" class="form-control form-control-sm bg-dark text-white border-secondary" min="5" max="100000">
+                                <div class="config-help">Dla wizualizacji zaleca się &le; 30 znaków.</div>
+                            </div>
+                            <div class="mb-3" id="m-container">
+                                <label class="form-label text-white">Długość wzorca (m)</label>
+                                <input type="number" th:field="*{patternLength}" id="patternLength" class="form-control form-control-sm bg-dark text-white border-secondary" min="1" max="100">
+                            </div>
+                            <div class="mb-3" id="sigma-container">
+                                <label class="form-label text-white">Wielkość alfabetu (&sigma;)</label>
+                                <input type="number" th:field="*{alphabetSize}" class="form-control form-control-sm bg-dark text-white border-secondary" min="1" max="26">
+                                <div class="config-help">Liczba unikalnych znaków (a-z).</div>
+                            </div>
+                            <div class="mb-3" id="pos-container">
+                                <label class="form-label text-white">Pozycja wzorca</label>
+                                <select th:field="*{patternPosition}" id="patternPosition" class="form-select form-select-sm bg-dark text-white border-secondary" onchange="toggleFormFields()">
+                                    <option value="START">Początek</option>
+                                    <option value="MIDDLE">Środek</option>
+                                    <option value="END">Koniec</option>
+                                    <option value="MULTIPLE">Wiele wystąpień</option>
+                                </select>
+                                <div class="config-help">Gdzie wstrzyknąć wzorzec w tekście.</div>
+                            </div>
+                            <div class="mb-3" id="match-count-container">
+                                <label class="form-label text-white">Liczba wystąpień</label>
+                                <input type="number" th:field="*{matchCount}" class="form-control form-control-sm bg-dark text-white border-secondary" min="1" max="10">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Długość wzorca (m)</label>
-                            <input type="number" th:field="*{patternLength}" class="form-control form-control-sm" min="1" max="100">
+
+                        <div id="custom-data-container" style="display:none;">
+                            <div class="mb-3">
+                                <label class="form-label text-white fw-bold">Twój Tekst</label>
+                                <textarea th:field="*{customText}" id="customText" class="form-control form-control-sm bg-dark text-white border-primary border-opacity-50" rows="3" placeholder="Wpisz tekst do przeszukania..."></textarea>
+                                <div class="config-help text-primary">Dowolny ciąg znaków.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-white fw-bold">Twój Wzorzec</label>
+                                <input type="text" th:field="*{customPattern}" id="customPattern" class="form-control form-control-sm bg-dark text-white border-primary border-opacity-50" placeholder="Wpisz szukaną frazę...">
+                                <div class="config-help text-primary">Fraza, której szukamy.</div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" th:field="*{ignoreCase}" id="ignoreCase">
+                                    <label class="form-check-label text-white" for="ignoreCase">
+                                        Ignoruj wielkość liter
+                                    </label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Rozkład Danych</label>
-                            <select th:field="*{dataType}" id="dataType" class="form-select form-select-sm" onchange="toggleFormFields()">
-                                <option value="NATURAL">Tekst naturalny</option>
-                                <option value="UNIFORM">Rozkład jednostajny</option>
-                                <option value="PATHOLOGICAL">Dane patologiczne</option>
-                                <option value="PERIODIC">Dane periodyczne</option>
-                                <option value="DNA">Dane DNA / mały alfabet</option>
-                            </select>
-                            <div class="config-help">Wpływa na strukturę tekstu i wzorca.</div>
-                        </div>
-                        <div class="mb-3" id="sigma-container">
-                            <label class="form-label">Wielkość alfabetu (&sigma;)</label>
-                            <input type="number" th:field="*{alphabetSize}" class="form-control form-control-sm" min="1" max="26">
-                            <div class="config-help">Liczba unikalnych znaków (a-z).</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Pozycja wzorca</label>
-                            <select th:field="*{patternPosition}" id="patternPosition" class="form-select form-select-sm" onchange="toggleFormFields()">
-                                <option value="START">Początek</option>
-                                <option value="MIDDLE">Środek</option>
-                                <option value="END">Koniec</option>
-                                <option value="MULTIPLE">Wiele wystąpień</option>
-                            </select>
-                            <div class="config-help">Gdzie wstrzyknąć wzorzec w tekście.</div>
-                        </div>
-                        <div class="mb-3" id="match-count-container">
-                            <label class="form-label">Liczba wystąpień</label>
-                            <input type="number" th:field="*{matchCount}" class="form-control form-control-sm" min="1" max="10">
-                        </div>
-                        <div class="mb-3" id="seed-container">
-                            <label class="form-label">Seed (RNG)</label>
-                            <input type="number" th:field="*{seed}" id="seed" class="form-control form-control-sm">
-                            <div class="config-help">Ziarno dla powtarzalnych wyników.</div>
-                        </div>
+
+                        <input type="hidden" th:field="*{seed}">
                         <input type="hidden" th:field="*{repetitions}" value="1">
                         <button type="submit" class="btn btn-primary btn-lg w-100 mt-2 shadow">
                             <i class="bi bi-play-circle-fill me-2"></i>GENERUJ I ANALIZUJ
                         </button>
                     </form>
+                    
                 </div>
             </div>
         </div>
@@ -257,13 +283,19 @@
     <div class="row mt-3 g-3" th:if="${result != null}">
         <div class="col-md-4">
             <div class="stat-box-large shadow">
-                <span class="stat-value-large" th:text="${result.comparisons}">0</span>
+                <span class="stat-value-large">
+                    <span th:text="${result.comparisons}">0</span>
+                    <small class="fs-6 opacity-50" th:text="'/ ' + ${result.shifts * result.patternLength}"></small>
+                </span>
                 <span class="stat-label-large">Porównania Znaków</span>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-box-large shadow">
-                <span class="stat-value-large" th:text="${result.shifts}">0</span>
+                <span class="stat-value-large">
+                    <span th:text="${result.shifts}">0</span>
+                    <small class="fs-6 opacity-50" th:text="'/ ' + ${result.shifts}"></small>
+                </span>
                 <span class="stat-label-large">Przesunięcia Wzorca</span>
             </div>
         </div>
@@ -416,49 +448,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
-
-                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">
-                                    6. Seed RNG
-                                </h5>
-
-                                <p class="small text-dim mb-3">
-                                    Seed RNG (Random Number Generator) określa początkowy stan generatora
-                                    pseudolosowego używanego do tworzenia danych testowych. Dzięki temu
-                                    identyczne parametry eksperymentu generują dokładnie te same dane wejściowe.
-                                </p>
-
-                                <ul class="list-unstyled small text-dim mb-3">
-
-                                    <li class="mb-2">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        Zapewnia powtarzalność eksperymentów.
-                                    </li>
-
-                                    <li class="mb-2">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        Pozwala porównywać wyniki między różnymi uruchomieniami aplikacji.
-                                    </li>
-
-                                    <li class="mb-2">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        Umożliwia generowanie identycznych danych na różnych komputerach.
-                                    </li>
-
-                                    <li>
-                                        <i class="bi bi-dot text-primary"></i>
-                                        Zmiana seed powoduje wygenerowanie innego układu znaków.
-                                    </li>
-
-                                </ul>
-
-                                <p class="small text-dim italic mb-0">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Parametr wpływa wyłącznie na scenariusze losowe i nie zmienia działania
-                                    algorytmu Brute Force, lecz strukturę generowanych danych wejściowych.
-                                </p>
-
-                            </div>
+                            <!-- Puste miejsce po Seed RNG lub można tu dać coś innego, ale na razie usuwamy treść -->
                         </div>
                     </div>
                 </div>
@@ -477,22 +467,9 @@
         const dataType = document.getElementById('dataType').value;
         const patternPosition = document.getElementById('patternPosition').value;
         
-        const seedInput = document.getElementById('seed');
-        const seedContainer = document.getElementById('seed-container');
         const sigmaContainer = document.getElementById('sigma-container');
         const matchCountContainer = document.getElementById('match-count-container');
         
-        // Seed ma znaczenie dla NATURAL, UNIFORM i DNA
-        const isRandomized = (dataType === 'NATURAL' || dataType === 'UNIFORM' || dataType === 'DNA');
-        
-        if (isRandomized) {
-            seedInput.disabled = false;
-            seedContainer.style.opacity = '1';
-        } else {
-            seedInput.disabled = true;
-            seedContainer.style.opacity = '0.5';
-        }
-
         // Sigma tylko dla UNIFORM
         sigmaContainer.style.display = (dataType === 'UNIFORM') ? 'block' : 'none';
 
@@ -500,8 +477,40 @@
         matchCountContainer.style.display = (patternPosition === 'MULTIPLE') ? 'block' : 'none';
     }
 
+    window.setMode = function(mode) {
+        const dataTypeSelect = document.getElementById('dataType');
+        const autoParams = document.getElementById('auto-params-container');
+        const customParams = document.getElementById('custom-data-container');
+        const btnAuto = document.getElementById('btn-auto');
+        const btnManual = document.getElementById('btn-manual');
+
+        if (mode === 'manual') {
+            dataTypeSelect.value = 'CUSTOM';
+            autoParams.style.display = 'none';
+            customParams.style.display = 'block';
+            btnAuto.classList.remove('active');
+            btnManual.classList.add('active');
+        } else {
+            if (dataTypeSelect.value === 'CUSTOM') {
+                dataTypeSelect.value = 'NATURAL';
+            }
+            autoParams.style.display = 'block';
+            customParams.style.display = 'none';
+            btnAuto.classList.add('active');
+            btnManual.classList.remove('active');
+            toggleFormFields();
+        }
+    };
+
     // Wywołaj przy ładowaniu, aby ustawić stan początkowy
-    document.addEventListener('DOMContentLoaded', toggleFormFields);
+    document.addEventListener('DOMContentLoaded', function() {
+        const dataType = document.getElementById('dataType').value;
+        if (dataType === 'CUSTOM') {
+            setMode('manual');
+        } else {
+            setMode('auto');
+        }
+    });
 
     /*<![CDATA[*/
     const lastResult = /*[[${result}]]*/ null;
@@ -599,7 +608,7 @@
 
             // Ustawienie pozycji wzorca
             const cellElement = document.querySelector('.char-cell');
-            const cellWidth = cellElement ? cellElement.offsetWidth + 8 : 68; 
+            const cellWidth = cellElement ? cellElement.offsetWidth + 12 : 72; 
             patternRow.style.left = `${step.shift * cellWidth}px`;
 
             // Podświetlenie linii pseudokodu
@@ -704,6 +713,10 @@
                 currentStep++;
                 updateStep(currentStep);
             }
+        };
+
+        window.nextStepManually = function() {
+            window.nextStep();
         };
 
         window.prevStep = function() {

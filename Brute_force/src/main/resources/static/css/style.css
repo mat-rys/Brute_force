@@ -174,9 +174,9 @@ body {
 
 .char-grid {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     margin-bottom: 1.5rem;
-    padding-bottom: 10px;
+    padding: 10px;
     min-width: max-content;
 }
 
@@ -236,23 +236,27 @@ body {
     justify-content: center;
     background: #1e293b;
     border: 2px solid #475569;
-    border-radius: 10px;
+    border-radius: 6px;
     font-family: 'Consolas', 'Monaco', monospace;
     font-weight: 700;
     position: relative;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
 .char-cell span {
-    font-size: 2rem;
+    font-size: 1.8rem;
     color: #ffffff;
+    line-height: 1;
 }
 
 .char-idx {
-    font-size: 0.75rem;
-    color: var(--text-dim);
+    font-size: 0.7rem;
+    color: var(--primary);
     position: absolute;
     bottom: 2px;
+    font-weight: 800;
+    opacity: 0.8;
 }
 
 .char-cell.active-p {
@@ -594,4 +598,55 @@ body {
 .diagram-container-huge:hover .diagram-image-huge {
     transform: scale(1.02);
     filter: brightness(1.25) contrast(1.15);
+}
+
+/* Style akademickie dla tabel */
+.academic-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.academic-table thead th {
+    background-color: #000 !important;
+    color: var(--primary) !important;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    padding: 12px 8px;
+    border-bottom: 2px solid var(--primary) !important;
+}
+
+.academic-table tbody td {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: middle;
+}
+
+.academic-table tr:hover {
+    background-color: rgba(0, 123, 255, 0.05) !important;
+}
+
+/* Wyróżnienia dla wyników */
+.text-accent {
+    color: var(--accent) !important;
+}
+
+/* Tooltipy i pomoc w konfiguracji */
+.config-help {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+}
+
+/* Karta z wykresem */
+canvas {
+    max-width: 100%;
+}
+
+/* Badge dla złożoności */
+.badge.bg-outline-secondary {
+    background: transparent;
+    border: 1px solid var(--text-dim);
+    color: var(--text-dim);
 }

@@ -1,9 +1,6 @@
 package com.example.brute_force.controller;
 
-import com.example.brute_force.model.BenchmarkStats;
-import com.example.brute_force.model.MultiTestConfig;
-import com.example.brute_force.model.TestConfig;
-import com.example.brute_force.model.TestResult;
+import com.example.brute_force.model.*;
 import com.example.brute_force.service.BenchmarkService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -13,8 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -50,6 +47,7 @@ public class WebController {
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("stats", new BenchmarkStats());
+        model.addAttribute("env", getEnvironmentInfo());
         return "index";
     }
 
@@ -58,12 +56,89 @@ public class WebController {
         TestResult result = benchmarkService.runBenchmark(config);
         model.addAttribute("result", result);
         model.addAttribute("stats", new BenchmarkStats());
+        model.addAttribute("env", getEnvironmentInfo());
         return "index";
     }
 
     @GetMapping("/experiments")
     public String experiments(@ModelAttribute("experimentResults") List<TestResult> results, Model model) {
+        model.addAttribute("env", getEnvironmentInfo());
         return "experiments";
+    }
+
+    private Map<String, String> getEnvironmentInfo() {
+        Map<String, String> env = new HashMap<>();
+        
+        // System i Architektura
+        String osName = System.getProperty("os.name");
+        String osArch = System.getProperty("os.arch");
+        String osVer = System.getProperty("os.version");
+        env.put("os", osName + " " + osVer + " (" + osArch + ")");
+        
+        // Środowisko uruchomieniowe
+        env.put("java", System.getProperty("java.vendor") + " JDK " + System.getProperty("java.version"));
+        
+        // Procesor
+        String cpuName = getCpuName(osName, osArch);
+        env.put("cpu", cpuName);
+        env.put("cores", String.valueOf(Runtime.getRuntime().availableProcessors()));
+        
+        // Karta Graficzna (GPU)
+        String gpuName = getGpuName(osName);
+        env.put("gpu", gpuName);
+        
+        // Pamięć
+        try {
+            java.lang.management.OperatingSystemMXBean osBean = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+            if (osBean instanceof com.sun.management.OperatingSystemMXBean) {
+                com.sun.management.OperatingSystemMXBean sunBean = (com.sun.management.OperatingSystemMXBean) osBean;
+                long totalPhysical = sunBean.getTotalPhysicalMemorySize() / (1024 * 1024);
+                env.put("ramPhysical", totalPhysical + " MB");
+            } else {
+                env.put("ramPhysical", "N/A");
+            }
+        } catch (Throwable e) {
+            env.put("ramPhysical", "N/A");
+        }
+        
+        env.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+        return env;
+    }
+
+    private String getCpuName(String osName, String osArch) {
+        String cpuName = System.getenv("PROCESSOR_IDENTIFIER");
+        if (osName.toLowerCase().contains("win")) {
+            try {
+                Process process = Runtime.getRuntime().exec("wmic cpu get name");
+                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
+                reader.readLine(); // skip header
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.trim().isEmpty()) {
+                        cpuName = line.trim();
+                        break;
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+        return cpuName != null ? cpuName : "Generic " + osArch;
+    }
+
+    private String getGpuName(String osName) {
+        if (osName.toLowerCase().contains("win")) {
+            try {
+                Process process = Runtime.getRuntime().exec("wmic path win32_VideoController get name");
+                java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()));
+                reader.readLine(); // skip header
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (!line.trim().isEmpty()) {
+                        return line.trim();
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+        return "N/A";
     }
 
     @PostMapping("/experiments/run")
@@ -90,6 +165,26 @@ public class WebController {
     @GetMapping("/analysis")
     public String analysis() {
         return "analysis";
+    }
+
+    @GetMapping("/benchmark-compare")
+    public String benchmarkCompare(Model model) {
+        model.addAttribute("env", getEnvironmentInfo());
+        return "benchmark-compare";
+    }
+
+    @GetMapping("/data/external/{filename}")
+    @ResponseBody
+    public org.springframework.core.io.Resource getExternalData(@PathVariable String filename) {
+        return new org.springframework.core.io.ClassPathResource(filename + ".json");
+    }
+
+    @GetMapping("/export/full-json")
+    public ResponseEntity<MachineBenchmarkResult> exportFullJson(@ModelAttribute("experimentResults") List<TestResult> results) {
+        MachineBenchmarkResult fullResult = new MachineBenchmarkResult("Użytkownik", getEnvironmentInfo(), results);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=benchmark_results.json")
+                .body(fullResult);
     }
 
     @GetMapping("/export/json")

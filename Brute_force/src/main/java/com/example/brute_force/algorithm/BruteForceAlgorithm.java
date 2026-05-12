@@ -60,6 +60,10 @@ public class BruteForceAlgorithm {
     }
 
     public Result search(String text, String pattern, boolean recordSteps) {
+        return search(text, pattern, recordSteps, false);
+    }
+
+    public Result search(String text, String pattern, boolean recordSteps, boolean ignoreCase) {
         int n = text.length();
         int m = pattern.length();
         long comparisons = 0;
@@ -79,7 +83,13 @@ public class BruteForceAlgorithm {
                     comparisons++;
                     char tChar = text.charAt(i + j);
                     char pChar = pattern.charAt(j);
-                    boolean isMatch = tChar == pChar;
+                    
+                    boolean isMatch;
+                    if (ignoreCase) {
+                        isMatch = Character.toLowerCase(tChar) == Character.toLowerCase(pChar);
+                    } else {
+                        isMatch = tChar == pChar;
+                    }
                     
                     if (recordSteps && steps.size() < 2000) {
                         String status = isMatch ? "ZGODNOŚĆ (MATCH)" : "ROZBIEŻNOŚĆ (MISMATCH)";

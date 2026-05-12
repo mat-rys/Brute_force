@@ -31,6 +31,12 @@ public class TestResult {
     private String searchSummary;
     private String generationMethod;
     private long shifts;
+    private long partialMatches;
+    private long mismatches;
+    private double throughput; // characters per ms
+    private String memoryUsage = "O(1)";
+    private String theoreticalComplexity;
+    private String scenarioCase; // Best, Average, Worst
 
     // Getters and Setters
     public String getId() { return id; }
@@ -57,6 +63,18 @@ public class TestResult {
     public void setAlgorithmImpact(String algorithmImpact) { this.algorithmImpact = algorithmImpact; }
     public long getShifts() { return shifts; }
     public void setShifts(long shifts) { this.shifts = shifts; }
+    public long getPartialMatches() { return partialMatches; }
+    public void setPartialMatches(long partialMatches) { this.partialMatches = partialMatches; }
+    public long getMismatches() { return mismatches; }
+    public void setMismatches(long mismatches) { this.mismatches = mismatches; }
+    public double getThroughput() { return throughput; }
+    public void setThroughput(double throughput) { this.throughput = throughput; }
+    public String getMemoryUsage() { return memoryUsage; }
+    public void setMemoryUsage(String memoryUsage) { this.memoryUsage = memoryUsage; }
+    public String getTheoreticalComplexity() { return theoreticalComplexity; }
+    public void setTheoreticalComplexity(String theoreticalComplexity) { this.theoreticalComplexity = theoreticalComplexity; }
+    public String getScenarioCase() { return scenarioCase; }
+    public void setScenarioCase(String scenarioCase) { this.scenarioCase = scenarioCase; }
     public List<BruteForceAlgorithm.VisualStep> getVisualSteps() { return visualSteps; }
     public void setVisualSteps(List<BruteForceAlgorithm.VisualStep> visualSteps) { this.visualSteps = visualSteps; }
     public String getText() { return text; }

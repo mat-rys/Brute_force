@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analiza Algorytmiczna | BF-EDU</title>
+    <title>Brute force algorytm</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -14,12 +14,13 @@
     <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="/">
             <i class="bi bi-cpu-fill me-2" style="color: var(--primary);"></i>
-            <span>BF-EDU <small class="text-muted">| Analiza</small></span>
+            <span>Brute force algorytm <small class="text-muted">| Analiza</small></span>
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
             <a class="nav-link active" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
             <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+            <a class="nav-link" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
     </div>
 </nav>
@@ -33,6 +34,34 @@
     </header>
 
     <div class="row g-4">
+        <!-- CO TO JEST BRUTE FORCE? -->
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header">
+                    <i class="bi bi-info-circle me-2"></i>Wprowadzenie: Algorytm Brute Force
+                </div>
+                <div class="card-body p-4">
+                    <p class="academic-text">
+                        <strong>Algorytm Brute Force</strong> (algorytm naiwny) jest najprostszą metodą wyszukiwania wzorca w tekście. 
+                        Polega na sprawdzaniu każdej możliwej pozycji wzorca w tekście znak po znaku, bez stosowania dodatkowych optymalizacji ani preprocessingu danych.
+                    </p>
+                    <p class="academic-text">
+                        Dla każdego przesunięcia algorytm porównuje kolejne znaki tekstu i wzorca <strong>od lewej do prawej</strong>. 
+                        Jeżeli wystąpi różnica (<span class="text-danger">mismatch</span>), porównanie zostaje przerwane, a wzorzec przesuwany jest o <strong>dokładnie jeden znak</strong> dalej.
+                    </p>
+                    <p class="academic-text">
+                        Kluczową cechą algorytmu jest <strong>pełne przeszukanie tekstu</strong> — nawet po znalezieniu dopasowania algorytm kontynuuje działanie, aby wykryć wszystkie wystąpienia wzorca, również nakładające się.
+                    </p>
+                    <div class="mt-3 p-3 rounded border border-primary border-opacity-25 bg-dark bg-opacity-25">
+                        <p class="academic-text italic mb-0 opacity-75">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Brute Force nie wykorzystuje mechanizmów inteligentnego przeskakiwania tekstu, dlatego w najgorszym przypadku może wykonywać bardzo dużą liczbę powtórnych porównań znaków.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- IMPLEMENTACJA (PSEUDOKOD) - Teraz POZIOMO -->
         <div class="col-12">
             <div class="card shadow">

@@ -39,9 +39,9 @@
                             Profile
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (n=10k, iter=10, x50)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (n=50k, iter=12, x12)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (n=250k, iter=16, x20)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (10k-50k, x12)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (100k-300k, x15)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (500k-1M, x10)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -180,11 +180,12 @@
                     <h6 class="mb-0 text-white"><i class="bi bi-journal-text me-2"></i>Metodyka pomiarów</h6>
                 </div>
                 <div class="card-body p-3 small text-dim">
+                    <p class="mb-2">Benchmark JVM wymaga fazy warmup oraz wielokrotnych pomiarów. Dla bardzo małych czasów wykonania możliwy jest szum pomiarowy wynikający z działania JIT, schedulerów systemowych i cache CPU.</p>
                     <ul class="ps-3 mb-0">
-                        <li><b>Stabilizacja JIT:</b> 20 iteracji warmup przed pomiarem.</li>
-                        <li><b>Precyzja:</b> Pomiary <code>System.nanoTime()</code> wewnątrz próbek.</li>
-                        <li><b>Odrzucanie anomalii:</b> Eliminacja skrajnych wartości (min/max).</li>
-                        <li><b>Wielokrotność:</b> Pętla powtórzeń wewnątrz każdego pomiaru.</li>
+                        <li><b>Stabilizacja JIT:</b> 30+ iteracji warmup przed pomiarem.</li>
+                        <li><b>Precyzja:</b> Pierwszy pomiar po warmup jest odrzucany.</li>
+                        <li><b>Odrzucanie outlierów:</b> Eliminacja skrajnych 5% wyników (min/max).</li>
+                        <li><b>Stabilność:</b> Wykorzystanie mediany zamiast średniej arytmetycznej.</li>
                     </ul>
                 </div>
             </div>
@@ -342,30 +343,30 @@
 
         switch(profile) {
             case 'quick':
-                minN.value = 2500;
-                maxN.value = 10000;
-                stepN.value = 2500;
-                iterations.value = 10;
-                samples.value = 4;
-                repeatInside.value = 50;
-                if (patternLengths) patternLengths.value = "10";
-                break;
-            case 'standard':
                 minN.value = 10000;
                 maxN.value = 50000;
                 stepN.value = 10000;
-                iterations.value = 12;
-                samples.value = 5;
+                iterations.value = 6;
+                samples.value = 4;
                 repeatInside.value = 12;
                 if (patternLengths) patternLengths.value = "10";
                 break;
-            case 'detailed':
-                minN.value = 50000;
-                maxN.value = 250000;
+            case 'standard':
+                minN.value = 100000;
+                maxN.value = 300000;
                 stepN.value = 50000;
-                iterations.value = 16;
+                iterations.value = 10;
                 samples.value = 5;
-                repeatInside.value = 20;
+                repeatInside.value = 15;
+                if (patternLengths) patternLengths.value = "10";
+                break;
+            case 'detailed':
+                minN.value = 500000;
+                maxN.value = 1000000;
+                stepN.value = 100000;
+                iterations.value = 6;
+                samples.value = 4;
+                repeatInside.value = 10;
                 if (patternLengths) patternLengths.value = "10";
                 break;
         }

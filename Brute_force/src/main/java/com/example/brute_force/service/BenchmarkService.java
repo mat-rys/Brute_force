@@ -60,8 +60,10 @@ public class BenchmarkService {
         String text = generateText(config);
         String pattern = generatePattern(config);
 
-        // Warmup JVM - stabilizacja JIT (20 razy)
-        for (int i = 0; i < 20; i++) {
+        // Warmup JVM - stabilizacja JIT
+        // Wykonujemy dłuższą fazę rozgrzewki (wymaganie 4)
+        int warmupRuns = 30; 
+        for (int i = 0; i < warmupRuns; i++) {
             algorithm.search(text, pattern, false, config.isIgnoreCase());
         }
 
@@ -69,23 +71,31 @@ public class BenchmarkService {
         BruteForceAlgorithm.Result lastResult = null;
         int repeats = Math.max(1, config.getRepeatInsideBenchmark());
 
-        for (int i = 0; i < config.getRepetitions(); i++) {
+        // Właściwe pomiary
+        // Dodajemy 1 dodatkowy pomiar, który odrzucimy (pierwszy po warmup - wymaganie 5)
+        int totalRepetitions = config.getRepetitions() + 1;
+
+        for (int i = 0; i < totalRepetitions; i++) {
             long start = System.nanoTime();
             for (int j = 0; j < repeats; j++) {
                 lastResult = algorithm.search(text, pattern, false, config.isIgnoreCase());
             }
             long end = System.nanoTime();
-            durations.add((end - start) / repeats);
+            
+            // Odrzucamy pierwszy pomiar po warmupie (wymaganie 5)
+            if (i > 0) {
+                durations.add((end - start) / repeats);
+            }
         }
 
-        // Odrzucanie skrajnych wyników (najniższe i najwyższe 5%)
-        if (durations.size() >= 5) {
+        // Odrzucanie skrajnych wyników (najniższe i najwyższe 5% - wymaganie 7)
+        if (durations.size() >= 10) {
             Collections.sort(durations);
-            int toRemove = (int) Math.ceil(durations.size() * 0.05);
+            int toRemove = (int) Math.max(1, Math.floor(durations.size() * 0.05));
             for (int r = 0; r < toRemove; r++) {
-                if (durations.size() > 2) { // Zostawiamy przynajmniej 1 element (choć przy ceil i pętli i tak by zostało)
-                    durations.remove(0);
-                    durations.remove(durations.size() - 1);
+                if (durations.size() > 2) {
+                    durations.remove(0); // Usuń najniższy
+                    durations.remove(durations.size() - 1); // Usuń najwyższy
                 }
             }
         }
@@ -260,9 +270,9 @@ public class BenchmarkService {
         result.setMismatches(shifts - lastResult.getOccurrences());
         result.setPartialMatches(result.getComparisons() - shifts);
         
-        // Throughput: znaki na milisekundę (avg jest w ns)
-        double durationMs = avg / 1_000_000.0;
-        result.setThroughput(durationMs > 0 ? (double) config.getTextLength() / durationMs : 0);
+        // Throughput: znaki na milisekundę (używamy mediany dla lepszej stabilności - wymaganie 8)
+        double medianMs = median / 1_000_000.0;
+        result.setThroughput(medianMs > 0 ? (double) config.getTextLength() / medianMs : 0);
         
         // Klasyfikacja scenariusza i złożoność
         if (config.getDataType().equalsIgnoreCase("PATHOLOGICAL")) {

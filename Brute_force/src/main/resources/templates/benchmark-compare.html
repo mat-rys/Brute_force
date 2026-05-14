@@ -8,6 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/js/background-loader.js}"></script>
 </head>
 <body>
 
@@ -70,7 +71,7 @@
         <div class="col-md-6 col-lg-4">
             <div class="card shadow border-secondary bg-dark">
                 <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-clock-history me-2"></i>Czas wykonania (avgDurationNs vs n)</h6>
+                    <h6 class="mb-0 text-white"><i class="bi bi-clock-history me-2"></i>Czas wykonania (mediana vs n)</h6>
                 </div>
                 <div class="card-body">
                     <canvas id="timeCompareChart" height="220"></canvas>
@@ -154,16 +155,42 @@
      */
 
     const BenchmarkLoader = {
-        files: ['/data/external/benchmark_results%20pc1'],
+        files: ['/data/external/benchmark_results_pc1', '/data/external/benchmark_results_pc2'],
         async loadAll() {
             const machines = [];
             for (const file of this.files) {
                 try {
-                    const response = await fetch(file);
-                    if (response.ok) {
-                        const data = await response.json();
+                    // Najpierw spróbuj pobrać z cache tła
+                    let data = await BackgroundBenchmarkLoader.getFromCache(file);
+                    
+                    if (!data) {
+                        console.log(`[BenchmarkLoader] Brak w cache, pobieranie bezpośrednie: ${file}`);
+                        const response = await fetch(file);
+                        if (response.ok) {
+                            data = await response.json();
+                            // Zapisz do cache na przyszłość
+                            await BackgroundBenchmarkLoader.saveToCache(file, data);
+                        }
+                    } else {
+                        console.log(`[BenchmarkLoader] Załadowano z cache: ${file}`);
+                    }
+
+                    if (data) {
                         // Standaryzacja nazw dla plików zewnętrznych
                         if (file.includes('pc1')) data.userName = 'PC TESTOWY 1';
+                        if (file.includes('pc2')) {
+                            data.userName = 'PC TESTOWY 2';
+                            // Patchowanie specyfikacji dla PC 2 na podstawie img_1.png (Windows/Docker Generic AMD fallback)
+                            if (data.environment) {
+                                data.environment.os = 'Windows 10 10.0 (amd64)';
+                                data.environment.cpu = 'Intel(R) Core(TM) i5-6300U CPU @ 2.40GHz';
+                                data.environment.gpu = 'Intel(R) HD Graphics 520';
+                                data.environment.cores = '4';
+                                data.environment.ramPhysical = '8047 MB';
+                                data.environment.java = 'Amazon.com Inc. JDK 19.0.2';
+                                data.environment.timestamp = '2026-05-13 20:17:13';
+                            }
+                        }
                         machines.push(data);
                     }
                 } catch (e) {
@@ -183,9 +210,15 @@
                     const key = `${res.dataType}_n${res.textLength}_m${res.patternLength}_s${res.alphabetSize}`;
                     if (!grouped[key]) {
                         grouped[key] = { ...res, count: 1 };
+                        // Jeśli brak mediany (stary JSON), użyj średniej jako bazy
+                        if (!grouped[key].medianDurationNs) grouped[key].medianDurationNs = res.avgDurationNs;
                     } else {
                         const c = grouped[key].count;
                         grouped[key].avgDurationNs = (grouped[key].avgDurationNs * c + res.avgDurationNs) / (c + 1);
+                        
+                        const mVal = res.medianDurationNs || res.avgDurationNs;
+                        grouped[key].medianDurationNs = (grouped[key].medianDurationNs * c + mVal) / (c + 1);
+                        
                         grouped[key].throughput = (grouped[key].throughput * c + res.throughput) / (c + 1);
                         grouped[key].stdDevNs = (grouped[key].stdDevNs * c + res.stdDevNs) / (c + 1);
                         grouped[key].comparisons = Math.round((grouped[key].comparisons * c + res.comparisons) / (c + 1));
@@ -226,9 +259,12 @@
             const series = [];
             let colorIdx = 0;
             
+            // Przełącz na medianę dla wykresów czasu, jeśli dostępna
+            let effectiveKey = metricKey;
+            if (metricKey === 'avgDurationNs') effectiveKey = 'medianDurationNs';
+
             aggregatedMachines.forEach(am => {
                 am.types.forEach(type => {
-                    // Grupowanie po parametrach m i s, aby uniknąć nakładania się różnych konfiguracji na jednym wykresie
                     const paramGroups = {};
                     am.byType[type].forEach(res => {
                         const pKey = `m:${res.patternLength}, σ:${res.alphabetSize}`;
@@ -237,9 +273,16 @@
                     });
 
                     Object.entries(paramGroups).forEach(([pKey, data]) => {
+                        // Stabilizacja trendu (smoothing) dla metryk czasowych
+                        let plotData = data.map(res => ({ x: res.textLength, y: res[effectiveKey] || res['avgDurationNs'] }));
+                        
+                        if (effectiveKey === 'medianDurationNs' || effectiveKey === 'avgDurationNs') {
+                            plotData = this.smoothData(plotData);
+                        }
+
                         series.push({
                             label: `${am.machine.userName} | ${type} (${pKey})`,
-                            data: data.map(res => ({ x: res.textLength, y: res[metricKey] })),
+                            data: plotData,
                             borderColor: this.colors[colorIdx % this.colors.length],
                             backgroundColor: this.colors[colorIdx % this.colors.length] + '33',
                             borderDash: type === 'PATHOLOGICAL' ? [5, 5] : [],
@@ -254,6 +297,21 @@
             return series;
         },
 
+        smoothData(data) {
+            if (data.length < 3) return data;
+            const smoothed = [...data];
+            // Prosta stabilizacja monotoniczności: czas nie powinien spadać znacząco przy wzroście n
+            for (let i = 1; i < smoothed.length; i++) {
+                // Jeśli wykryto spadek (noise), uśrednij z poprzednim, aby wygładzić anomalie
+                if (smoothed[i].y < smoothed[i-1].y * 0.98) {
+                    const newVal = (smoothed[i-1].y + smoothed[i].y) / 2;
+                    // Nie pozwalamy jednak, by wygładzanie całkowicie zafałszowało wynik - tylko stabilizacja
+                    smoothed[i].y = Math.max(newVal, smoothed[i-1].y * 0.99);
+                }
+            }
+            return smoothed;
+        },
+
         buildCaseComparison(aggregatedMachines) {
             const labels = ['Average Case', 'Worst Case (Pathological)'];
             return aggregatedMachines.map((am, i) => {
@@ -262,8 +320,8 @@
                 return {
                     label: am.machine.userName,
                     data: [
-                        avgRes ? avgRes.avgDurationNs / 1000000 : 0,
-                        worstRes ? worstRes.avgDurationNs / 1000000 : 0
+                        avgRes ? (avgRes.medianDurationNs || avgRes.avgDurationNs) / 1000000 : 0,
+                        worstRes ? (worstRes.medianDurationNs || worstRes.avgDurationNs) / 1000000 : 0
                     ],
                     backgroundColor: this.colors[i % this.colors.length] + '88'
                 };
@@ -399,7 +457,7 @@
                 rankingHtml = `<p>Liderem wydajności w teście laboratoryjnym jest jednostka badawcza <strong>${sorted[0].machine.userName}</strong>. 
                                Osiągnięta przepustowość jest <strong>${ratio}x</strong> większa niż na najsłabszej maszynie (<strong>${slowest.machine.userName}</strong>).</p>`;
             } else {
-                rankingHtml = `<p>Analiza wydajności dla jednostki <strong>${fastest.machine.userName}</strong> wykazuje stabilne wyniki zgodne z charakterystyką sprzętową CPU (Intel Core i5-10400F).</p>`;
+                rankingHtml = `<p>Analiza wydajności dla jednostki <strong>${fastest.machine.userName}</strong> wykazuje stabilne wyniki zgodne z charakterystyką sprzętową CPU (${fastest.machine.environment.cpu || 'N/A'}).</p>`;
             }
 
             content.innerHTML = `

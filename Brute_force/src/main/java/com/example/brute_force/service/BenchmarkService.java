@@ -78,11 +78,16 @@ public class BenchmarkService {
             durations.add((end - start) / repeats);
         }
 
-        // Odrzucanie skrajnych wyników (jeśli mamy wystarczająco dużo próbek)
-        if (durations.size() >= 3) {
+        // Odrzucanie skrajnych wyników (najniższe i najwyższe 5%)
+        if (durations.size() >= 5) {
             Collections.sort(durations);
-            durations.remove(0); // usuń min
-            durations.remove(durations.size() - 1); // usuń max
+            int toRemove = (int) Math.ceil(durations.size() * 0.05);
+            for (int r = 0; r < toRemove; r++) {
+                if (durations.size() > 2) { // Zostawiamy przynajmniej 1 element (choć przy ceil i pętli i tak by zostało)
+                    durations.remove(0);
+                    durations.remove(durations.size() - 1);
+                }
+            }
         }
 
         // Liczba porównań jest stała dla tych samych danych w Brute Force
@@ -225,6 +230,17 @@ public class BenchmarkService {
         long max = durations.stream().max(Long::compare).orElse(0L);
         double avg = durations.stream().mapToLong(Long::longValue).average().orElse(0.0);
 
+        // Obliczanie mediany
+        Collections.sort(durations);
+        double median = 0;
+        if (!durations.isEmpty()) {
+            if (durations.size() % 2 == 0) {
+                median = (durations.get(durations.size() / 2 - 1) + durations.get(durations.size() / 2)) / 2.0;
+            } else {
+                median = durations.get(durations.size() / 2);
+            }
+        }
+
         double variance = durations.stream()
                 .mapToDouble(d -> Math.pow(d - avg, 2))
                 .average().orElse(0.0);
@@ -233,9 +249,10 @@ public class BenchmarkService {
         result.setMinDurationNs(min);
         result.setMaxDurationNs(max);
         result.setAvgDurationNs(avg);
+        result.setMedianDurationNs(median);
         result.setStdDevNs(stdDev);
-        result.setDurationNs((long) avg);
-        result.setOpsPerNs(avg > 0 ? (double) result.getComparisons() / avg : 0);
+        result.setDurationNs((long) median);
+        result.setOpsPerNs(median > 0 ? (double) result.getComparisons() / median : 0);
 
         // Nowe metryki
         long shifts = Math.max(0, config.getTextLength() - config.getPatternLength() + 1);

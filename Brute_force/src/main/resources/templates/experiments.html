@@ -8,6 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script th:src="@{/js/background-loader.js}"></script>
 </head>
 <body>
 
@@ -38,9 +39,9 @@
                             Profile
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (n=10k, iter=8, x10)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (n=50k, iter=8, x12)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (n=250k, iter=10, x15)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (n=10k, iter=10, x50)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (n=50k, iter=12, x12)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (n=250k, iter=16, x20)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -63,7 +64,7 @@
 
                         <div class="mt-3 mb-3">
                             <label class="form-label text-dim small fw-bold">DŁUGOŚĆ WZORCA (m) - wartości po przecinku</label>
-                            <input type="text" th:field="*{patternLengths}" class="form-control bg-dark text-white border-secondary" placeholder="np. 10, 50">
+                            <input type="text" th:field="*{patternLengths}" class="form-control bg-dark text-white border-secondary" placeholder="np. 10, 50" id="patternLengths">
                         </div>
 
                         <div class="row g-3 mb-3">
@@ -210,7 +211,7 @@
                                     <th>Typ / Scenariusz</th>
                                     <th>n</th>
                                     <th>m</th>
-                                    <th>Śr. Czas [ms]</th>
+                                    <th>Mediana [ms]</th>
                                     <th>Por. (C)</th>
                                     <th>Throughput</th>
                                     <th>PM</th>
@@ -229,7 +230,7 @@
                                     <td th:text="${res.textLength}">1000</td>
                                     <td th:text="${res.patternLength}">10</td>
                                     <td>
-                                        <span class="text-accent fw-bold" th:text="${#numbers.formatDecimal(res.avgDurationNs / 1000000.0, 1, 3)}">0.123</span>
+                                        <span class="text-accent fw-bold" th:text="${#numbers.formatDecimal(res.medianDurationNs / 1000000.0, 1, 3)}">0.123</span>
                                         <div class="small opacity-50" th:text="${'[' + #numbers.formatDecimal(res.minDurationNs / 1000000.0, 1, 3) + '-' + #numbers.formatDecimal(res.maxDurationNs / 1000000.0, 1, 3) + ']'}">[0-0]</div>
                                     </td>
                                     <td th:text="${res.comparisons}">1072</td>
@@ -260,7 +261,7 @@
                 <div class="col-md-6">
                     <div class="card shadow border-secondary bg-dark">
                         <div class="card-header bg-dark border-secondary">
-                            <h6 class="mb-0 text-white">Czas wykonania vs Długość tekstu (n)</h6>
+                            <h6 class="mb-0 text-white">Czas wykonania (mediana) vs n</h6>
                         </div>
                         <div class="card-body">
                             <canvas id="timeChart" height="200"></canvas>
@@ -337,33 +338,50 @@
         const iterations = document.getElementById('iterations');
         const samples = document.getElementById('samples');
         const repeatInside = document.getElementById('repeatInside');
+        const patternLengths = document.getElementById('patternLengths');
 
         switch(profile) {
             case 'quick':
                 minN.value = 2500;
                 maxN.value = 10000;
                 stepN.value = 2500;
-                iterations.value = 8;
+                iterations.value = 10;
                 samples.value = 4;
-                repeatInside.value = 10;
+                repeatInside.value = 50;
+                if (patternLengths) patternLengths.value = "10";
                 break;
             case 'standard':
                 minN.value = 10000;
                 maxN.value = 50000;
                 stepN.value = 10000;
-                iterations.value = 8;
+                iterations.value = 12;
                 samples.value = 5;
                 repeatInside.value = 12;
+                if (patternLengths) patternLengths.value = "10";
                 break;
             case 'detailed':
                 minN.value = 50000;
                 maxN.value = 250000;
                 stepN.value = 50000;
-                iterations.value = 10;
+                iterations.value = 16;
                 samples.value = 5;
-                repeatInside.value = 15;
+                repeatInside.value = 20;
+                if (patternLengths) patternLengths.value = "10";
                 break;
         }
+    }
+
+    function smoothData(data) {
+        if (data.length < 3) return data;
+        const smoothed = [...data];
+        for (let i = 1; i < smoothed.length; i++) {
+            // Jeśli wykryto spadek czasu mimo wzrostu n (noise), stabilizujemy trend
+            if (smoothed[i].y < smoothed[i-1].y * 0.98) {
+                const newVal = (smoothed[i-1].y + smoothed[i].y) / 2;
+                smoothed[i].y = Math.max(newVal, smoothed[i-1].y * 0.99);
+            }
+        }
+        return smoothed;
     }
 
     if (results && results.length > 0) {
@@ -380,13 +398,17 @@
             const grouped = {};
             typeResults.forEach(r => {
                 if (!grouped[r.textLength]) grouped[r.textLength] = { sum: 0, count: 0 };
-                grouped[r.textLength].sum += (r.avgDurationNs / 1000000);
+                const val = (r.medianDurationNs || r.avgDurationNs) / 1000000;
+                grouped[r.textLength].sum += val;
                 grouped[r.textLength].count++;
             });
 
+            let data = Object.keys(grouped).map(n => ({ x: parseInt(n), y: grouped[n].sum / grouped[n].count }));
+            data = smoothData(data);
+
             return {
                 label: type,
-                data: Object.keys(grouped).map(n => ({ x: parseInt(n), y: grouped[n].sum / grouped[n].count })),
+                data: data,
                 borderColor: colors[i % colors.length],
                 backgroundColor: colors[i % colors.length] + '33',
                 tension: 0.3,

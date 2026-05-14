@@ -20,6 +20,7 @@ public class TestResult {
     private long minDurationNs;
     private long maxDurationNs;
     private double avgDurationNs;
+    private double medianDurationNs;
     private double stdDevNs;
     private double opsPerNs;
     private List<BruteForceAlgorithm.VisualStep> visualSteps;
@@ -101,6 +102,8 @@ public class TestResult {
     public void setMaxDurationNs(long maxDurationNs) { this.maxDurationNs = maxDurationNs; }
     public double getAvgDurationNs() { return avgDurationNs; }
     public void setAvgDurationNs(double avgDurationNs) { this.avgDurationNs = avgDurationNs; }
+    public double getMedianDurationNs() { return medianDurationNs; }
+    public void setMedianDurationNs(double medianDurationNs) { this.medianDurationNs = medianDurationNs; }
     public double getStdDevNs() { return stdDevNs; }
     public void setStdDevNs(double stdDevNs) { this.stdDevNs = stdDevNs; }
     public double getOpsPerNs() { return opsPerNs; }

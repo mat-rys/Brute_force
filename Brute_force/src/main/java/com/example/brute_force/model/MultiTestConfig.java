@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MultiTestConfig {
-    private String textLengths = "10000, 20000, 30000, 40000, 50000";
+    private String textLengths = "10000, 20000, 30000";
     private int minN = 10000;
-    private int maxN = 50000;
+    private int maxN = 30000;
     private int stepN = 10000;
     private String patternLengths = "10";
     private List<String> dataTypes = new ArrayList<>(Arrays.asList("NATURAL", "UNIFORM", "DNA", "PERIODIC", "PATHOLOGICAL"));
@@ -16,9 +16,9 @@ public class MultiTestConfig {
     private String seeds = "42";
     private List<String> patternPositions = new ArrayList<>(Arrays.asList("START", "MIDDLE", "END", "RANDOM", "MULTIPLE"));
     private String matchCounts = "1";
-    private int repetitions = 12;
-    private int samplesPerN = 5;
-    private int repeatInsideBenchmark = 12;
+    private int repetitions = 8;
+    private int samplesPerN = 1;
+    private int repeatInsideBenchmark = 10;
     private double partialMatchDensity = 0.1;
     private double repeatability = 0.0;
 

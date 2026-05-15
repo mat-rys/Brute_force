@@ -11,6 +11,12 @@
     <script th:src="@{/js/background-loader.js}"></script>
 </head>
 <body>
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display: none;">
+    <div class="loader-neon"></div>
+    <div class="loading-text">Trwa generowanie wyników...</div>
+    <div class="loading-subtext">Laboratorium oblicza wydajność algorytmu dla wybranych scenariuszy.</div>
+</div>
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container-fluid px-4">
@@ -39,9 +45,9 @@
                             Profile
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (10k-50k, x12)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (100k-300k, x15)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (500k-1M, x10)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (10k-30k, 75 prób)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (100k-300k, 625 prób)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (500k-1M, 900 prób)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -251,8 +257,15 @@
                                 </tr>
                                 <tr th:if="${experimentResults.isEmpty()}">
                                     <td colspan="11" class="text-center py-5 text-muted">
-                                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                                        Brak danych w rejestrze. Uruchom benchmark, aby rozpocząć pomiary.
+                                        <div id="no-data-content">
+                                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                            Brak danych w rejestrze. Uruchom benchmark, aby rozpocząć pomiary.
+                                        </div>
+                                        <div id="loading-content" style="display: none;">
+                                            <div class="spinner-border text-primary mb-2" role="status"></div>
+                                            <div class="text-primary fw-bold">TRWA GENEROWANIE WYNIKÓW...</div>
+                                            <div class="small text-dim">Laboratorium oblicza wydajność dla wybranych scenariuszy.</div>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -394,11 +407,11 @@
         switch(profile) {
             case 'quick':
                 minN.value = 10000;
-                maxN.value = 50000;
+                maxN.value = 30000;
                 stepN.value = 10000;
-                iterations.value = 6;
-                samples.value = 4;
-                repeatInside.value = 12;
+                iterations.value = 8;
+                samples.value = 1;
+                repeatInside.value = 10;
                 if (patternLengths) patternLengths.value = "10";
                 break;
             case 'standard':
@@ -414,8 +427,8 @@
                 minN.value = 500000;
                 maxN.value = 1000000;
                 stepN.value = 100000;
-                iterations.value = 6;
-                samples.value = 4;
+                iterations.value = 12;
+                samples.value = 6;
                 repeatInside.value = 10;
                 if (patternLengths) patternLengths.value = "10";
                 break;
@@ -434,6 +447,18 @@
         }
         return smoothed;
     }
+
+    document.getElementById('benchmarkForm').addEventListener('submit', function() {
+        const noDataContent = document.getElementById('no-data-content');
+        const loadingContent = document.getElementById('loading-content');
+        if (noDataContent) noDataContent.style.display = 'none';
+        if (loadingContent) loadingContent.style.display = 'block';
+        
+        document.getElementById('loadingOverlay').style.display = 'flex';
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }, 10);
+    });
 
     if (results && results.length > 0) {
         // Przygotowanie danych do wykresów

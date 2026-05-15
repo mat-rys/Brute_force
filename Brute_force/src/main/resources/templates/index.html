@@ -11,6 +11,12 @@
     <script th:src="@{/js/background-loader.js}"></script>
 </head>
 <body>
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="display: none;">
+    <div class="loader-neon"></div>
+    <div class="loading-text">Trwa generowanie danych...</div>
+    <div class="loading-subtext">System przygotowuje tekst i wzorzec do analizy algorytmicznej.</div>
+</div>
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container-fluid px-4">
@@ -142,7 +148,7 @@
                     -->
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/run}" th:object="${config}" method="post">
+                    <form th:action="@{/run}" th:object="${config}" method="post" id="vizForm">
                         <!--
                         <div id="auto-params-container">
                             <div class="mb-3">
@@ -262,10 +268,17 @@
             -->
             
             <!-- Widok startowy jeśli brak danych -->
-            <div class="card shadow-lg border-primary text-center p-5 h-100 d-flex flex-column justify-content-center" th:if="${result == null}">
-                <i class="bi bi-display fs-1 text-primary mb-4"></i>
-                <h2 class="text-white">System Gotowy</h2>
-                <p class="text-muted">Skonfiguruj parametry i wygeneruj dane, aby rozpocząć analizę.</p>
+            <div class="card shadow-lg border-primary text-center p-5 h-100 d-flex flex-column justify-content-center" th:if="${result == null}" id="ready-card">
+                <div id="ready-content">
+                    <i class="bi bi-display fs-1 text-primary mb-4"></i>
+                    <h2 class="text-white">System Gotowy</h2>
+                    <p class="text-muted">Skonfiguruj parametry i wygeneruj dane, aby rozpocząć analizę.</p>
+                </div>
+                <div id="loading-content-viz" style="display: none;">
+                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+                    <h2 class="text-primary">TRWA GENEROWANIE DANYCH...</h2>
+                    <p class="text-dim">System przygotowuje tekst i wzorzec do analizy algorytmicznej.</p>
+                </div>
             </div>
         </div>
 
@@ -631,6 +644,23 @@
             currentStep = 0;
             updateStep(0);
         };
+
+        if (document.getElementById('vizForm')) {
+            document.getElementById('vizForm').addEventListener('submit', function() {
+                const readyContent = document.getElementById('ready-content');
+                const loadingContent = document.getElementById('loading-content-viz');
+                if (readyContent) readyContent.style.display = 'none';
+                if (loadingContent) loadingContent.style.display = 'block';
+
+                const overlay = document.getElementById('loadingOverlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    setTimeout(() => {
+                        overlay.classList.add('active');
+                    }, 10);
+                }
+            });
+        }
 
         if (steps && steps.length > 0) {
             updateStep(0);

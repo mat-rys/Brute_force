@@ -20,7 +20,7 @@
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
-            <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
+            <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Algorytm</a>
             <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Benchmark</a>
             <a class="nav-link active" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
@@ -29,139 +29,165 @@
 
 <div class="container-fluid px-4 py-4">
     <div class="row g-4">
-        <!-- Tabela Porównawcza Sprzętu -->
-        <div class="col-xl-6">
-            <div class="card shadow border-secondary h-100 bg-dark">
-                <div class="card-header bg-dark border-secondary py-3">
-                    <h5 class="mb-0 text-white"><i class="bi bi-table me-2"></i>Specyfikacja Techniczna Środowisk</h5>
+        <!-- LEWA KOLUMNA: SPECYFIKACJA, FILTR, ANALIZA -->
+        <div class="col-lg-3">
+            <div class="row g-4">
+                <!-- Tabela Porównawcza Sprzętu -->
+                <div class="col-12">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary py-3">
+                            <h5 class="mb-0 text-white"><i class="bi bi-table me-2"></i>Specyfikacja Techniczna</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover mb-0" id="comparison-table">
+                                    <thead>
+                                        <tr id="table-header">
+                                            <th class="bg-black">Parametr</th>
+                                            <!-- Nagłówki maszyn z JS -->
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-body">
+                                        <!-- Dane z JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover mb-0" id="comparison-table">
-                            <thead>
-                                <tr id="table-header">
-                                    <th class="bg-black">Parametr</th>
-                                    <!-- Nagłówki maszyn z JS -->
-                                </tr>
-                            </thead>
-                            <tbody id="table-body">
-                                <!-- Dane z JS -->
-                            </tbody>
-                        </table>
+
+                <!-- Panel Filtrów -->
+                <div class="col-12">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-body py-3">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-filter-circle me-2 text-accent fs-5"></i>
+                                <h6 class="mb-0 text-white">Filtr danych</h6>
+                            </div>
+                            <select id="dataTypeFilter" class="form-select bg-black text-white border-secondary w-100 mb-2">
+                                <option value="ALL">Wszystkie typy danych</option>
+                            </select>
+                            <div class="text-dim small">
+                                <i class="bi bi-info-circle me-1"></i> Wybierz scenariusz do porównania.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charakterystyka zbiorów danych -->
+                <div class="col-12">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary py-2">
+                            <h6 class="mb-0 text-white small text-uppercase"><i class="bi bi-info-square me-2"></i>chatakertrystyki rozkładow dnaych</h6>
+                        </div>
+                        <div class="card-body py-3">
+                            <div class="mb-3">
+                                <h6 class="text-info small mb-1"><i class="bi bi-fonts me-1"></i>Tekst Naturalny</h6>
+                                <p class="text-dim small mb-0" style="font-size: 0.8rem;">Dane przypominające język naturalny. Nierównomierny rozkład liter, typowy dla rzeczywistych tekstów.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-success small mb-1"><i class="bi bi-shuffle me-1"></i>Rozkład Jednostajny</h6>
+                                <p class="text-dim small mb-0" style="font-size: 0.8rem;">Każdy znak ma identyczne prawdopodobieństwo. Najszybsze wykrywanie niezgodności.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-danger small mb-1"><i class="bi bi-exclamation-triangle me-1"></i>Dane Patologiczne</h6>
+                                <p class="text-dim small mb-0" style="font-size: 0.8rem;">Scenariusz pesymistyczny (Worst-case). Wymusza maksymalną liczbę porównań dla każdej pozycji.</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-warning small mb-1"><i class="bi bi-repeat me-1"></i>Dane Periodyczne</h6>
+                                <p class="text-dim small mb-0" style="font-size: 0.8rem;">Powtarzające się sekwencje znaków, generujące dużą liczbę częściowych dopasowań.</p>
+                            </div>
+                            <div>
+                                <h6 class="text-primary small mb-1"><i class="bi bi-dna me-1"></i>DNA / Mały Alfabet</h6>
+                                <p class="text-dim small mb-0" style="font-size: 0.8rem;">Ograniczony zbiór znaków (np. 4), co zwiększa szansę na przypadkowe zgodności prefiksów.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analiza Środowisk -->
+                <div class="col-12">
+                    <div class="card shadow border-accent bg-dark">
+                        <div class="card-header bg-accent text-dark py-2">
+                            <h5 class="mb-0 fw-bold small text-uppercase"><i class="bi bi-clipboard2-pulse me-2"></i>Wnioski</h5>
+                        </div>
+                        <div class="card-body academic-text py-3">
+                            <div id="analysis-content">
+                                <p class="text-dim">Trwa analiza danych...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Analiza Środowisk -->
-        <div class="col-xl-6">
-            <div class="card shadow border-accent h-100 bg-dark">
-                <div class="card-header bg-accent text-dark py-3">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-clipboard2-pulse me-2"></i>Analiza Porównawcza i Wnioski</h5>
-                </div>
-                <div class="card-body academic-text">
-                    <div id="analysis-content">
-                        <p class="text-dim">Trwa analiza danych z wielu źródeł...</p>
+        <!-- PRAWA KOLUMNA: WYKRESY -->
+        <div class="col-lg-9">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white"><i class="bi bi-clock-history me-2"></i>Czas wykonania</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="timeCompareChart" height="220"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Panel Filtrów -->
-        <div class="col-12 mb-2">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-body py-2 d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-filter-circle me-3 text-accent fs-4"></i>
-                        <h6 class="mb-0 text-white me-4">Filtr danych:</h6>
-                        <select id="dataTypeFilter" class="form-select bg-black text-white border-secondary" style="width: auto; min-width: 250px;">
-                            <option value="ALL">Wszystkie typy danych (widok zbiorczy)</option>
-                        </select>
-                    </div>
-                    <div class="text-dim small">
-                        <i class="bi bi-info-circle me-1"></i> Wybierz konkretny scenariusz, aby porównać wydajność w identycznych warunkach.
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white"><i class="bi bi-bar-chart-steps me-2"></i>Liczba porównań</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="compCompareChart" height="220"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Wykresy -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-clock-history me-2"></i>Czas wykonania (mediana vs n)</h6>
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white"><i class="bi bi-speedometer2 me-2"></i>Przepustowość</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="throughputCompareChart" height="220"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="timeCompareChart" height="220"></canvas>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-bar-chart-steps me-2"></i>Liczba porównań (comparisons vs n)</h6>
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white"><i class="bi bi-activity me-2"></i>Współczynnik cn</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="cnCompareChart" height="220"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="compCompareChart" height="220"></canvas>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-speedometer2 me-2"></i>Przepustowość (throughput vs n)</h6>
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white"><i class="bi bi-layers-half me-2"></i>Partial Matches</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="partialCompareChart" height="220"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="throughputCompareChart" height="220"></canvas>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-activity me-2"></i>Współczynnik cn (cn vs n)</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="cnCompareChart" height="220"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-layers-half me-2"></i>Partial Matches (PM vs n)</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="partialCompareChart" height="220"></canvas>
-                </div>
-            </div>
-        </div>
-
-<!--
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-pie-chart me-2"></i>Case Study: Avg vs Worst</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="caseCompareChart" height="220"></canvas>
-                </div>
-            </div>
-        </div>
--->
-
-        <!-- Nowy wykres: Stabilność -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow border-secondary bg-dark">
-                <div class="card-header bg-dark border-secondary">
-                    <h6 class="mb-0 text-white"><i class="bi bi-shield-check me-2"></i>Stabilność pomiarów (stdDevNs vs n)</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="stdDevCompareChart" height="220"></canvas>
+                <div class="col-md-6">
+                    <div class="card shadow border-secondary bg-dark">
+                        <div class="card-header bg-dark border-secondary">
+                            <h6 class="mb-0 text-white"><i class="bi bi-shield-check me-2"></i>Stabilność pomiarów</h6>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="stdDevCompareChart" height="220"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -303,7 +329,7 @@
                         }
 
                         series.push({
-                            label: `${am.machine.userName} | ${type} (${pKey})`,
+                            label: `${am.machine.userName} | ${type}`,
                             data: plotData,
                             borderColor: this.colors[colorIdx % this.colors.length],
                             backgroundColor: this.colors[colorIdx % this.colors.length] + '33',
@@ -471,31 +497,25 @@
             }
 
             content.innerHTML = `
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <h6 class="text-accent small fw-bold text-uppercase"><i class="bi bi-trophy-fill me-2"></i>Wydajność</h6>
-                            ${rankingHtml}
-                        </div>
-                        <div class="mb-3">
-                            <h6 class="text-success small fw-bold text-uppercase"><i class="bi bi-shield-check me-2"></i>Stabilność</h6>
-                            <p>Wyniki są powtarzalne dzięki rozgrzaniu maszyny wirtualnej (JVM warmup), co eliminuje błędy pomiarowe.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <h6 class="text-warning small fw-bold text-uppercase"><i class="bi bi-gear-wide-connected me-2"></i>Logika</h6>
-                            <p>Algorytm wykonuje zawsze tę samą liczbę operacji dla identycznych danych, niezależnie od użytego sprzętu.</p>
-                        </div>
-                        <div class="mb-3">
-                            <h6 class="text-info small fw-bold text-uppercase"><i class="bi bi-graph-up-arrow me-2"></i>Skalowanie</h6>
-                            <p>Dla zwykłego tekstu algorytm jest bardzo szybki, ale przy danych patologicznych jego wydajność gwałtownie spada.</p>
-                        </div>
-                    </div>
+                <div class="mb-3">
+                    <h6 class="text-accent small fw-bold text-uppercase"><i class="bi bi-trophy-fill me-2"></i>Wydajność</h6>
+                    ${rankingHtml}
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-success small fw-bold text-uppercase"><i class="bi bi-shield-check me-2"></i>Stabilność</h6>
+                    <p class="small">Wyniki są powtarzalne dzięki rozgrzaniu maszyny wirtualnej (JVM warmup).</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-warning small fw-bold text-uppercase"><i class="bi bi-gear-wide-connected me-2"></i>Logika</h6>
+                    <p class="small">Algorytm wykonuje stałą liczbę operacji dla identycznych danych.</p>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-info small fw-bold text-uppercase"><i class="bi bi-graph-up-arrow me-2"></i>Skalowanie</h6>
+                    <p class="small">Widoczna degradacja wydajności przy danych patologicznych.</p>
                 </div>
                 <div class="alert alert-dark border-secondary small mt-1 py-2">
                     <i class="bi bi-info-circle-fill me-2 text-info"></i>
-                    <strong>Wniosek:</strong> Brute Force zależy od mocy procesora. Stabilne środowisko testowe gwarantuje rzetelność i porównywalność wyników.
+                    <strong>Wniosek:</strong> Brute Force zależy od mocy CPU.
                 </div>
             `;
         }

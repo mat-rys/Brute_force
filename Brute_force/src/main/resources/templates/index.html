@@ -20,7 +20,7 @@
         </a>
         <div class="navbar-nav ms-auto">
             <a class="nav-link active" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
-            <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
+            <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Algorytm</a>
             <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Benchmark</a>
             <a class="nav-link" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
@@ -294,7 +294,6 @@
             <div class="stat-box-large shadow">
                 <span class="stat-value-large">
                     <span th:text="${result.comparisons}">0</span>
-                    <small class="fs-6 opacity-50" th:text="'/ ' + ${result.shifts * result.patternLength}"></small>
                 </span>
                 <span class="stat-label-large">Porównania Znaków</span>
             </div>
@@ -303,7 +302,6 @@
             <div class="stat-box-large shadow">
                 <span class="stat-value-large">
                     <span th:text="${result.shifts}">0</span>
-                    <small class="fs-6 opacity-50" th:text="'/ ' + ${result.shifts}"></small>
                 </span>
                 <span class="stat-label-large">Przesunięcia Wzorca</span>
             </div>

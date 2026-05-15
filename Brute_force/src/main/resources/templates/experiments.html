@@ -45,7 +45,7 @@
                             Profile
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (10k-30k, 75 prób)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (10k-30k, 300 prób)</a></li>
                             <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (100k-300k, 625 prób)</a></li>
                             <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (500k-1M, 900 prób)</a></li>
                         </ul>
@@ -410,7 +410,7 @@
                 maxN.value = 30000;
                 stepN.value = 10000;
                 iterations.value = 8;
-                samples.value = 1;
+                samples.value = 4;
                 repeatInside.value = 10;
                 if (patternLengths) patternLengths.value = "10";
                 break;
@@ -420,16 +420,16 @@
                 stepN.value = 50000;
                 iterations.value = 10;
                 samples.value = 5;
-                repeatInside.value = 15;
+                repeatInside.value = 10;
                 if (patternLengths) patternLengths.value = "10";
                 break;
             case 'detailed':
                 minN.value = 500000;
                 maxN.value = 1000000;
                 stepN.value = 100000;
-                iterations.value = 12;
+                iterations.value = 15;
                 samples.value = 6;
-                repeatInside.value = 10;
+                repeatInside.value = 14;
                 if (patternLengths) patternLengths.value = "10";
                 break;
         }

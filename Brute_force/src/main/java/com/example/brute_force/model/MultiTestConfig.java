@@ -17,7 +17,7 @@ public class MultiTestConfig {
     private List<String> patternPositions = new ArrayList<>(Arrays.asList("START", "MIDDLE", "END", "RANDOM", "MULTIPLE"));
     private String matchCounts = "1";
     private int repetitions = 8;
-    private int samplesPerN = 1;
+    private int samplesPerN = 4;
     private int repeatInsideBenchmark = 10;
     private double partialMatchDensity = 0.1;
     private double repeatability = 0.0;

@@ -24,7 +24,16 @@ public class BenchmarkService {
         for (int n : multiConfig.getTextLengthList()) {
             for (int m : multiConfig.getPatternLengthList()) {
                 for (String type : multiConfig.getDataTypes()) {
-                    for (int sigma : multiConfig.getAlphabetSizeList()) {
+                    // Jeśli mamy wiele alfabetów, dobieramy właściwy dla typu danych, 
+                    // aby uniknąć zbędnego produktu kartezjańskiego (np. DNA z alfabetem 26).
+                    List<Integer> sigmasToTest;
+                    if (multiConfig.getAlphabetSizeList().size() > 1) {
+                        sigmasToTest = Collections.singletonList(getAutoSigmaForType(type));
+                    } else {
+                        sigmasToTest = multiConfig.getAlphabetSizeList();
+                    }
+
+                    for (int sigma : sigmasToTest) {
                         for (long seed : multiConfig.getSeedList()) {
                             // Dodajemy próbki dla każdego n
                             for (int s = 0; s < multiConfig.getSamplesPerN(); s++) {
@@ -54,6 +63,17 @@ public class BenchmarkService {
             }
         }
         return results;
+    }
+
+    private int getAutoSigmaForType(String type) {
+        switch (type) {
+            case "NATURAL": return 26;
+            case "UNIFORM": return 2;
+            case "DNA": return 4;
+            case "PERIODIC": return 5;
+            case "PATHOLOGICAL": return 2;
+            default: return 26;
+        }
     }
 
     public TestResult runBenchmark(TestConfig config) {

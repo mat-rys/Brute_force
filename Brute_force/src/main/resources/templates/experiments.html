@@ -106,16 +106,20 @@
                                     <label class="form-check-label text-white small" for="typePath">Patologiczny (O(nm))</label>
                                 </div>
                             </div>
+                            <!-- Automatyczna informacja o alfabecie -->
+                            <div id="autoAlphabetInfo" class="mt-2 p-2 bg-dark bg-opacity-50 rounded border border-secondary" style="display: none;">
+                                <div id="autoSigmaDesc" class="small text-dim italic" style="font-size: 0.75rem;"></div>
+                            </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-6">
-                                <label class="form-label text-dim small fw-bold">ALFABET (σ)</label>
-                                <input type="text" th:field="*{alphabetSizes}" class="form-control bg-dark text-white border-secondary" placeholder="2, 4, 26">
+                            <div class="col-6" style="display: none;">
+                                <label class="form-label text-dim small fw-bold">ALFABET (&sigma;)</label>
+                                <input type="hidden" th:field="*{alphabetSizes}" id="alphabetSizes">
                             </div>
-                            <div class="col-6">
+                            <div class="col-12">
                                 <label class="form-label text-dim small fw-bold">SEED RNG</label>
-                                <input type="text" th:field="*{seeds}" class="form-control bg-dark text-white border-secondary" placeholder="42">
+                                <input type="text" th:field="*{seeds}" class="form-control bg-dark text-white border-secondary" placeholder="42" id="seeds">
                             </div>
                         </div>
 
@@ -331,6 +335,52 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     const results = /*[[${experimentResults}]]*/ [];
+
+    const sigmaMap = {
+        'NATURAL': { val: 26, label: 'Naturalny', chars: 'a-z', desc: 'Duży alfabet zmniejsza liczbę przypadkowych dopasowań.' },
+        'UNIFORM': { val: 2, label: 'Jednostajny', chars: '0,1', desc: 'Mały alfabet zwiększa liczbę podobieństw.' },
+        'DNA': { val: 4, label: 'DNA', chars: 'A,C,G,T', desc: 'Mały alfabet zwiększa liczbę partial-match.' },
+        'PERIODIC': { val: 5, label: 'Periodyczny', chars: 'a-e', desc: 'Średni alfabet sprzyja wykrywaniu okresowości.' },
+        'PATHOLOGICAL': { val: 2, label: 'Patologiczny', chars: 'A,B', desc: 'Minimalny alfabet zwiększa liczbę porównań i wymusza worst-case.' }
+    };
+
+    function updateAutoAlphabet() {
+        const checkboxes = document.querySelectorAll('input[name="dataTypes"]:checked');
+        const infoDiv = document.getElementById('autoAlphabetInfo');
+        const sigmaDescDiv = document.getElementById('autoSigmaDesc');
+        const alphabetInput = document.getElementById('alphabetSizes');
+
+        if (!infoDiv || !alphabetInput) return;
+
+        if (checkboxes.length === 0) {
+            infoDiv.style.display = 'none';
+            alphabetInput.value = '26';
+            return;
+        }
+
+        infoDiv.style.display = 'block';
+        let sigmas = [];
+        let descriptions = [];
+
+        checkboxes.forEach(cb => {
+            const config = sigmaMap[cb.value];
+            if (config) {
+                if (!sigmas.includes(config.val)) sigmas.push(config.val);
+                descriptions.push(`${config.label} &sigma; = ${config.val} (${config.chars}) &bdquo;${config.desc}&rdquo;`);
+            }
+        });
+
+        sigmaDescDiv.innerHTML = descriptions.join('<br>');
+        alphabetInput.value = sigmas.join(', ');
+    }
+
+    // Dodanie nasłuchiwania na zmiany typów danych
+    document.querySelectorAll('input[name="dataTypes"]').forEach(cb => {
+        cb.addEventListener('change', updateAutoAlphabet);
+    });
+
+    // Inicjalizacja przy ładowaniu
+    document.addEventListener('DOMContentLoaded', updateAutoAlphabet);
 
     function applyProfile(profile) {
         const minN = document.getElementById('minN');

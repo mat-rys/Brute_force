@@ -322,7 +322,13 @@
 
                     Object.entries(paramGroups).forEach(([pKey, data]) => {
                         // Stabilizacja trendu (smoothing) dla metryk czasowych
-                        let plotData = data.map(res => ({ x: res.textLength, y: res[effectiveKey] || res['avgDurationNs'] }));
+                        let plotData = data.map(res => {
+                            let val = res[effectiveKey] || res['avgDurationNs'];
+                            if (effectiveKey === 'medianDurationNs' || effectiveKey === 'avgDurationNs' || metricKey === 'stdDevNs') {
+                                val = val / 1000000;
+                            }
+                            return { x: res.textLength, y: val };
+                        });
                         
                         if (effectiveKey === 'medianDurationNs' || effectiveKey === 'avgDurationNs') {
                             plotData = this.smoothData(plotData);
@@ -424,12 +430,12 @@
             };
 
             const chartConfigs = [
-                { id: 'timeCompareChart', metric: 'avgDurationNs', title: 'Czas [ns]' },
+                { id: 'timeCompareChart', metric: 'avgDurationNs', title: 'Czas [ms]' },
                 { id: 'compCompareChart', metric: 'comparisons', title: 'Liczba porównań' },
                 { id: 'throughputCompareChart', metric: 'throughput', title: 'Przepustowość [znak/ms]' },
                 { id: 'cnCompareChart', metric: 'cn', title: 'Współczynnik c/n' },
                 { id: 'partialCompareChart', metric: 'partialMatches', title: 'Liczba Partial Matches' },
-                { id: 'stdDevCompareChart', metric: 'stdDevNs', title: 'Odchylenie Std [ns]' }
+                { id: 'stdDevCompareChart', metric: 'stdDevNs', title: 'Odchylenie Std [ms]' }
             ];
 
             chartConfigs.forEach(config => {

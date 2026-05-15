@@ -20,7 +20,7 @@
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
             <a class="nav-link active" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
-            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Benchmark</a>
             <a class="nav-link" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
     </div>
@@ -44,14 +44,14 @@
                 <div class="card-body p-4">
                     <p class="academic-text">
                         <strong>Algorytm Brute Force</strong> (algorytm naiwny) jest najprostszą metodą wyszukiwania wzorca w tekście. 
-                        Polega na sprawdzaniu każdej możliwej pozycji wzorca w tekście znak po znaku, bez stosowania dodatkowych optymalizacji ani preprocessingu danych.
+                        Polega na sprawdzaniu każdej możliwej pozycji wzorca w tekście znak po znaku, bez stosowania dodatkowych optymalizacji.
                     </p>
                     <p class="academic-text">
                         Dla każdego przesunięcia algorytm porównuje kolejne znaki tekstu i wzorca <strong>od lewej do prawej</strong>. 
                         Jeżeli wystąpi różnica (<span class="text-danger">mismatch</span>), porównanie zostaje przerwane, a wzorzec przesuwany jest o <strong>dokładnie jeden znak</strong> dalej.
                     </p>
                     <p class="academic-text">
-                        Kluczową cechą algorytmu jest <strong>pełne przeszukanie tekstu</strong> — nawet po znalezieniu dopasowania algorytm kontynuuje działanie, aby wykryć wszystkie wystąpienia wzorca, również nakładające się.
+                        Kluczową cechą algorytmu jest <strong>pełne przeszukanie tekstu</strong>, nawet po znalezieniu dopasowania algorytm kontynuuje działanie, aby wykryć wszystkie wystąpienia wzorca, również nakładające się.
                     </p>
                     <div class="mt-3 p-3 rounded border border-primary border-opacity-25 bg-dark bg-opacity-25">
                         <p class="academic-text italic mb-0 opacity-75">
@@ -71,17 +71,17 @@
                     <div class="row align-items-center">
                         <div class="col-lg-7">
                             <div class="code-container bg-black p-4 rounded" style="font-size: 1.1rem; border: 1px solid var(--border);">
-<pre class="mb-0 text-white" style="font-family: 'Consolas', monospace; line-height: 1.6;">
+<pre class="mb-0 text-white" id="pseudocode" style="font-family: 'Consolas', monospace; line-height: 1.6;">
 <span class="text-primary">procedure</span> BFSearch(T, P):
-  n = length(T)
-  m = length(P)
-  <span class="text-primary">for</span> i from 0 <span class="text-primary">to</span> n - m:
-    j = 0
-    <span class="text-primary">while</span> j &lt; m <span class="text-primary">and</span> T[i+j] == P[j]:
-      j = j + 1
-    if j == m:
-      record_match(i) <span class="text-muted">// Rejestracja dopasowania</span>
-  <span class="text-primary">return</span> found_matches <span class="text-muted">// Zwrócenie wszystkich pozycji</span>
+  <span data-step="1">n = length(T)</span>
+  <span data-step="1">m = length(P)</span>
+  <span class="text-primary" data-step="6">for</span> <span data-step="6">i from 0</span> <span class="text-primary" data-step="6">to</span> <span data-step="6">n - m:</span>
+    <span data-step="1">j = 0</span>
+    <span class="text-primary" data-step="2">while</span> <span data-step="2">j &lt; m</span> <span class="text-primary" data-step="2">and</span> <span data-step="2">T[i+j] == P[j]:</span>
+      <span data-step="2">j = j + 1</span>
+    <span data-step="4">if j == m:</span>
+      <span data-step="3">record_match(i)</span> <span class="text-muted" data-step="3">// Rejestracja dopasowania</span>
+  <span class="text-primary" data-step="6">return</span> <span data-step="6">found_matches</span> <span class="text-muted" data-step="6">// Zwrócenie wszystkich pozycji</span>
 </pre>
                             </div>
                         </div>
@@ -94,27 +94,27 @@
                                     <h4 class="text-white mb-0 fw-bold" style="letter-spacing: 1px; text-shadow: 0 0 15px var(--primary-glow);">Kroki algorytmu</h4>
                                 </div>
                                 <div class="algorithm-steps">
-                                    <div class="step-item">
+                                    <div class="step-item" data-highlight="1">
                                         <div class="step-number">1</div>
                                         <div class="step-text">Rozpoczynamy od pierwszego znaku tekstu.</div>
                                     </div>
-                                    <div class="step-item">
+                                    <div class="step-item" data-highlight="2">
                                         <div class="step-number">2</div>
                                         <div class="step-text">Porównujemy kolejne znaki tekstu ze wzorcem.</div>
                                     </div>
-                                    <div class="step-item">
+                                    <div class="step-item" data-highlight="3">
                                         <div class="step-number">3</div>
                                         <div class="step-text">Jeżeli wszystkie znaki są zgodne, oznacza to znalezienie wzorca w tekście.</div>
                                     </div>
-                                    <div class="step-item">
+                                    <div class="step-item" data-highlight="4">
                                         <div class="step-number">4</div>
                                         <div class="step-text">Jeżeli pojawi się różnica między znakami, porównanie zostaje przerwane.</div>
                                     </div>
-                                    <div class="step-item">
+                                    <div class="step-item" data-highlight="5">
                                         <div class="step-number">5</div>
                                         <div class="step-text">Następnie algorytm przesuwa się o jeden znak w prawo.</div>
                                     </div>
-                                    <div class="step-item">
+                                    <div class="step-item" data-highlight="6">
                                         <div class="step-number">6</div>
                                         <div class="step-text">Powtarzamy aż do końca tekstu.</div>
                                     </div>
@@ -291,5 +291,41 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const stepItems = document.querySelectorAll('.step-item');
+        const codeSpans = document.querySelectorAll('#pseudocode [data-step]');
+
+        stepItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const stepId = this.getAttribute('data-highlight');
+                
+                // Podświetl odpowiednie linie w kodzie
+                codeSpans.forEach(span => {
+                    if (span.getAttribute('data-step') === stepId) {
+                        span.style.backgroundColor = 'rgba(56, 189, 248, 0.4)';
+                        span.style.color = '#ffffff';
+                        span.style.boxShadow = '0 0 10px rgba(56, 189, 248, 0.6)';
+                        span.style.borderRadius = '4px';
+                        span.style.padding = '2px 4px';
+                        span.style.margin = '0 -4px';
+                        span.style.transition = 'all 0.2s ease';
+                    }
+                });
+            });
+
+            item.addEventListener('mouseleave', function() {
+                // Usuń podświetlenie
+                codeSpans.forEach(span => {
+                    span.style.backgroundColor = 'transparent';
+                    span.style.color = '';
+                    span.style.boxShadow = 'none';
+                    span.style.padding = '0';
+                    span.style.margin = '0';
+                });
+            });
+        });
+    });
+</script>
 </body>
 </html>

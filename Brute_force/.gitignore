@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Benchmark results
+benchmark_results_*.json
+*.json.tmp

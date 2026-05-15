@@ -21,7 +21,7 @@
         <div class="navbar-nav ms-auto">
             <a class="nav-link active" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
             <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
-            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Benchmark</a>
             <a class="nav-link" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
     </div>
@@ -134,13 +134,16 @@
             <div class="card shadow h-100">
                 <div class="card-header border-primary border-opacity-25 d-flex justify-content-between align-items-center py-2">
                     <span class="small text-uppercase fw-bold"><i class="bi bi-sliders me-2"></i>Konfiguracja</span>
+                    <!--
                     <div class="btn-group btn-group-sm">
                         <button type="button" id="btn-auto" class="btn btn-outline-primary active" onclick="setMode('auto')">Parametry</button>
                         <button type="button" id="btn-manual" class="btn btn-outline-primary" onclick="setMode('manual')">Własny tekst</button>
                     </div>
+                    -->
                 </div>
                 <div class="card-body">
                     <form th:action="@{/run}" th:object="${config}" method="post">
+                        <!--
                         <div id="auto-params-container">
                             <div class="mb-3">
                                 <label class="form-label text-white">Rozkład Danych</label>
@@ -183,8 +186,9 @@
                                 <input type="number" th:field="*{matchCount}" class="form-control form-control-sm bg-dark text-white border-secondary" min="1" max="10">
                             </div>
                         </div>
+                        -->
 
-                        <div id="custom-data-container" style="display:none;">
+                        <div id="custom-data-container" style="display:block;">
                             <div class="mb-3">
                                 <label class="form-label text-white fw-bold">Twój Tekst</label>
                                 <textarea th:field="*{customText}" id="customText" class="form-control form-control-sm bg-dark text-white border-primary border-opacity-50" rows="3" placeholder="Wpisz tekst do przeszukania..."></textarea>
@@ -204,6 +208,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        <input type="hidden" name="dataType" id="dataType" value="CUSTOM">
 
                         <input type="hidden" th:field="*{seed}">
                         <input type="hidden" th:field="*{repetitions}" value="1">
@@ -227,6 +233,7 @@
                 </div>
             </div>
 
+            <!--
             <div class="card shadow" th:if="${result != null}">
                 <div class="card-header bg-accent bg-opacity-10 text-accent">
                     <i class="bi bi-info-circle me-2"></i>CHARAKTERYSTYKA WYBRANEGO ROZKŁADU
@@ -252,6 +259,7 @@
                     </div>
                 </div>
             </div>
+            -->
             
             <!-- Widok startowy jeśli brak danych -->
             <div class="card shadow-lg border-primary text-center p-5 h-100 d-flex flex-column justify-content-center" th:if="${result == null}">
@@ -309,7 +317,7 @@
     </div>
 </div>
 
-<!-- SEKCJA INFORMACYJNA: KONFIGURACJA EKSPERYMENTU -->
+<!-- SEKCJA INFORMACYJNA: KONFIGURACJA EKSPERYMENTU
 <div class="container-fluid px-4">
     <div class="row mt-4 mb-5">
         <div class="col-12">
@@ -318,145 +326,35 @@
                     <i class="bi bi-info-square-fill me-2"></i>PRZEWODNIK PO KONFIGURACJI EKSPERYMENTU
                 </div>
                 <div class="card-body">
-
                     <div class="row g-4">
                         <div class="col-md-4">
-                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
-                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">1. Długość tekstu n</h5>
-                                <p class="small text-dim">Określa, ile znaków ma przeszukiwany tekst. Im większe n, tym więcej możliwych przesunięć wzorca i tym większy koszt całego wyszukiwania.</p>
-                                <div class="badge bg-primary bg-opacity-10 text-white border border-primary border-opacity-50">Wybór: np. 30, 100, 1000, 5000</div>
-                            </div>
+                            <h6 class="text-info"><i class="bi bi-rulers me-2"></i>1. Długość tekstu (n)</h6>
+                            <p class="small mb-0">Określa, ile znaków ma przeszukiwany tekst.</p>
                         </div>
                         <div class="col-md-4">
-                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
-                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">2. Długość wzorca m</h5>
-                                <p class="small text-dim">Im większa długość wzorca m, tym więcej znaków algorytm musi potencjalnie porównać podczas jednego przesunięcia.</p>
-                                <div class="badge bg-primary bg-opacity-10 text-white border border-primary border-opacity-50">Wybór: np. 2, 4, 8, 16</div>
-                            </div>
+                            <h6 class="text-info"><i class="bi bi-type me-2"></i>2. Długość wzorca (m)</h6>
+                            <p class="small mb-0">Im większa długość wzorca m, tym więcej znaków algorytm musi potencjalnie porównać.</p>
                         </div>
                         <div class="col-md-4">
-                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
-                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">3. Wielkość alfabetu &sigma;</h5>
-                                <p class="small text-dim">Określa liczbę różnych znaków użytych do generowania danych.</p>
-                                <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <span class="badge bg-dark border border-secondary">2 &rarr; binarne</span>
-                                    <span class="badge bg-dark border border-secondary">4 &rarr; DNA</span>
-                                    <span class="badge bg-dark border border-secondary">26 &rarr; A-Z</span>
-                                </div>
-                                <p class="small text-dim italic mb-0"><i class="bi bi-info-circle me-1"></i>Mały alfabet zwiększa liczbę podobieństw, duży przyspiesza wykrywanie mismatch.</p>
-                            </div>
+                            <h6 class="text-info"><i class="bi bi-alphabet-uppercase me-2"></i>3. Ignoruj wielkość liter</h6>
+                            <p class="small mb-0">Określa czy algorytm ma rozróżniać małe i wielkie litery.</p>
                         </div>
                         <div class="col-md-4">
-                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
-                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">
-                                    4. Rozkład danych
-                                </h5>
-
-                                <p class="small text-dim mb-3">
-                                    Określa sposób generowania znaków w tekście oraz strukturę danych wejściowych.
-                                    Rozkład danych wpływa bezpośrednio na liczbę częściowych dopasowań,
-                                    liczbę porównań oraz rzeczywistą wydajność algorytmu Brute Force.
-                                </p>
-
-                                <ul class="list-unstyled small text-dim mb-0">
-
-                                    <li class="mb-3">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Tekst naturalny</strong> – dane przypominające język naturalny.
-                                        Litery występują nierównomiernie, dlatego pojawiają się częściowe dopasowania
-                                        typowe dla rzeczywistych tekstów.
-                                    </li>
-
-                                    <li class="mb-3">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Rozkład jednostajny</strong> – każdy znak alfabetu ma podobne
-                                        prawdopodobieństwo wystąpienia. Mismatch zwykle pojawia się szybko,
-                                        dlatego liczba porównań pozostaje niska.
-                                    </li>
-
-                                    <li class="mb-3">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Dane patologiczne</strong> – specjalnie skonstruowane dane wymuszające
-                                        dużą liczbę porównań. Błąd pojawia się dopiero na końcu wzorca,
-                                        co prowadzi do worst-case O(n × m).
-                                    </li>
-
-                                    <li class="mb-3">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Dane periodyczne</strong> – tekst zawiera powtarzające się sekwencje,
-                                        np. <code>abcabcabc</code>. Powoduje to dużą liczbę częściowych dopasowań
-                                        i wielokrotne porównywanie podobnych fragmentów.
-                                    </li>
-
-                                    <li>
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>DNA / mały alfabet</strong> – niewielka liczba możliwych znaków
-                                        (np. A,C,G,T) zwiększa prawdopodobieństwo przypadkowych zgodności
-                                        i liczbę częściowych dopasowań.
-                                    </li>
-
-                                </ul>
-                            </div>
+                            <h6 class="text-info"><i class="bi bi-bar-chart-steps me-2"></i>4. Rozkład danych</h6>
+                            <p class="small mb-0">Określa sposób generowania znaków w tekście oraz strukturę danych wejściowych.</p>
                         </div>
                         <div class="col-md-4">
-                            <div class="h-100 p-3 rounded bg-dark bg-opacity-50 border border-secondary">
-
-                                <h5 class="text-primary border-bottom border-secondary pb-2 mb-3">
-                                    5. Pozycja wzorca
-                                </h5>
-
-                                <p class="small text-dim mb-3">
-                                    Określa sposób umieszczenia wzorca w tekście oraz lokalizację potencjalnych
-                                    dopasowań. Parametr wpływa na przebieg wyszukiwania i liczbę wykonywanych
-                                    porównań przez algorytm Brute Force.
-                                </p>
-
-                                <ul class="list-unstyled small text-dim mb-3">
-
-                                    <li class="mb-2">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Początek</strong> – wzorzec znajduje się na pierwszych pozycjach tekstu.
-                                    </li>
-
-                                    <li class="mb-2">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Środek</strong> – dopasowanie występuje w centralnej części tekstu.
-                                    </li>
-
-                                    <li class="mb-2">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Koniec</strong> – algorytm musi przeszukać prawie cały tekst przed znalezieniem dopasowania.
-                                    </li>
-
-                                    <li class="mb-2">
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Losowo</strong> – pozycja wybierana jest przez generator pseudolosowy RNG.
-                                    </li>
-
-                                    <li>
-                                        <i class="bi bi-dot text-primary"></i>
-                                        <strong>Wiele wystąpień</strong> – wzorzec pojawia się w kilku miejscach tekstu.
-                                    </li>
-
-                                </ul>
-
-                                <p class="small text-dim italic mb-0">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Parametr pozwala analizować wpływ lokalizacji wzorca na liczbę porównań,
-                                    liczbę przesunięć oraz wykrywanie pojedynczych i wielokrotnych dopasowań.
-                                </p>
-
-                            </div>
+                            <h6 class="text-info"><i class="bi bi-bullseye me-2"></i>5. Pozycja wzorca</h6>
+                            <p class="small mb-0">Określa sposób umieszczenia wzorca w tekście oraz lokalizację potencjalnych dopasowań.</p>
                         </div>
-                        <div class="col-md-4">
-                            <!-- Puste miejsce po Seed RNG lub można tu dać coś innego, ale na razie usuwamy treść -->
-                        </div>
+                        <div class="col-md-4"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+-->
 
 <footer class="mt-5 pb-5">
     <div class="container text-center py-4 border-top border-secondary">
@@ -465,17 +363,18 @@
 
 <script th:inline="javascript">
     function toggleFormFields() {
-        const dataType = document.getElementById('dataType').value;
-        const patternPosition = document.getElementById('patternPosition').value;
+        const dataTypeEl = document.getElementById('dataType');
+        const patternPositionEl = document.getElementById('patternPosition');
+        if (!dataTypeEl || !patternPositionEl) return;
+
+        const dataType = dataTypeEl.value;
+        const patternPosition = patternPositionEl.value;
         
         const sigmaContainer = document.getElementById('sigma-container');
         const matchCountContainer = document.getElementById('match-count-container');
         
-        // Sigma tylko dla UNIFORM
-        sigmaContainer.style.display = (dataType === 'UNIFORM') ? 'block' : 'none';
-
-        // MatchCount tylko dla MULTIPLE
-        matchCountContainer.style.display = (patternPosition === 'MULTIPLE') ? 'block' : 'none';
+        if (sigmaContainer) sigmaContainer.style.display = (dataType === 'UNIFORM') ? 'block' : 'none';
+        if (matchCountContainer) matchCountContainer.style.display = (patternPosition === 'MULTIPLE') ? 'block' : 'none';
     }
 
     window.setMode = function(mode) {
@@ -486,31 +385,26 @@
         const btnManual = document.getElementById('btn-manual');
 
         if (mode === 'manual') {
-            dataTypeSelect.value = 'CUSTOM';
-            autoParams.style.display = 'none';
-            customParams.style.display = 'block';
-            btnAuto.classList.remove('active');
-            btnManual.classList.add('active');
+            if (dataTypeSelect) dataTypeSelect.value = 'CUSTOM';
+            if (autoParams) autoParams.style.display = 'none';
+            if (customParams) customParams.style.display = 'block';
+            if (btnAuto) btnAuto.classList.remove('active');
+            if (btnManual) btnManual.classList.add('active');
         } else {
-            if (dataTypeSelect.value === 'CUSTOM') {
+            if (dataTypeSelect && dataTypeSelect.value === 'CUSTOM') {
                 dataTypeSelect.value = 'NATURAL';
             }
-            autoParams.style.display = 'block';
-            customParams.style.display = 'none';
-            btnAuto.classList.add('active');
-            btnManual.classList.remove('active');
-            toggleFormFields();
+            if (autoParams) autoParams.style.display = 'block';
+            if (customParams) customParams.style.display = 'none';
+            if (btnAuto) btnAuto.classList.add('active');
+            if (btnManual) btnManual.classList.remove('active');
+            if (typeof toggleFormFields === 'function') toggleFormFields();
         }
     };
 
     // Wywołaj przy ładowaniu, aby ustawić stan początkowy
     document.addEventListener('DOMContentLoaded', function() {
-        const dataType = document.getElementById('dataType').value;
-        if (dataType === 'CUSTOM') {
-            setMode('manual');
-        } else {
-            setMode('auto');
-        }
+        setMode('manual');
     });
 
     /*<![CDATA[*/
@@ -565,6 +459,7 @@
         }
 
         function updateStep(idx) {
+            if (!steps || steps.length === 0) return;
             currentStep = parseInt(idx);
             const step = steps[currentStep];
             stepLabel.innerText = `Krok ${currentStep + 1} / ${steps.length}`;
@@ -739,7 +634,12 @@
             updateStep(0);
         };
 
-        updateStep(0);
+        if (steps && steps.length > 0) {
+            updateStep(0);
+        } else {
+            document.getElementById('current-log').innerHTML = '<span class="text-warning">Brak kroków do wizualizacji (n < m lub pusty wzorzec).</span>';
+            stepLabel.innerText = "Krok 0 / 0";
+        }
 
         document.addEventListener('keydown', function(event) {
             if (event.key === 'ArrowRight') nextStep();

@@ -8,7 +8,7 @@ const BackgroundBenchmarkLoader = {
     dbName: 'BruteForceBenchmarkCache',
     storeName: 'benchmarks',
     version: 1,
-    files: ['/data/external/benchmark_results_pc1', '/data/external/benchmark_results_pc2'],
+    files: ['/data/external/benchmark_results_pc1', '/data/external/benchmark_results_pc3'],
 
     /**
      * Inicjalizacja bazy danych IndexedDB

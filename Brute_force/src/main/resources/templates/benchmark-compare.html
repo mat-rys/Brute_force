@@ -21,7 +21,7 @@
         <div class="navbar-nav ms-auto">
             <a class="nav-link" href="/"><i class="bi bi-eye-fill"></i> Wizualizacja</a>
             <a class="nav-link" href="/analysis"><i class="bi bi-book"></i> Analiza Algorytmu</a>
-            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Wyniki Testów</a>
+            <a class="nav-link" href="/experiments"><i class="bi bi-clipboard-data"></i> Benchmark</a>
             <a class="nav-link active" href="/benchmark-compare"><i class="bi bi-intersect"></i> Porównanie środowisk</a>
         </div>
     </div>
@@ -62,6 +62,24 @@
                 <div class="card-body academic-text">
                     <div id="analysis-content">
                         <p class="text-dim">Trwa analiza danych z wielu źródeł...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Filtrów -->
+        <div class="col-12 mb-2">
+            <div class="card shadow border-secondary bg-dark">
+                <div class="card-body py-2 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-filter-circle me-3 text-accent fs-4"></i>
+                        <h6 class="mb-0 text-white me-4">Filtr danych:</h6>
+                        <select id="dataTypeFilter" class="form-select bg-black text-white border-secondary" style="width: auto; min-width: 250px;">
+                            <option value="ALL">Wszystkie typy danych (widok zbiorczy)</option>
+                        </select>
+                    </div>
+                    <div class="text-dim small">
+                        <i class="bi bi-info-circle me-1"></i> Wybierz konkretny scenariusz, aby porównać wydajność w identycznych warunkach.
                     </div>
                 </div>
             </div>
@@ -123,6 +141,7 @@
             </div>
         </div>
 
+<!--
         <div class="col-md-6 col-lg-4">
             <div class="card shadow border-secondary bg-dark">
                 <div class="card-header bg-dark border-secondary">
@@ -133,6 +152,7 @@
                 </div>
             </div>
         </div>
+-->
 
         <!-- Nowy wykres: Stabilność -->
         <div class="col-md-6 col-lg-4">
@@ -155,7 +175,7 @@
      */
 
     const BenchmarkLoader = {
-        files: ['/data/external/benchmark_results_pc1', '/data/external/benchmark_results_pc2'],
+        files: ['/data/external/benchmark_results_pc1', '/data/external/benchmark_results_pc3'],
         async loadAll() {
             const machines = [];
             for (const file of this.files) {
@@ -178,17 +198,16 @@
                     if (data) {
                         // Standaryzacja nazw dla plików zewnętrznych
                         if (file.includes('pc1')) data.userName = 'PC TESTOWY 1';
-                        if (file.includes('pc2')) {
+                        if (file.includes('pc3')) {
                             data.userName = 'PC TESTOWY 2';
-                            // Patchowanie specyfikacji dla PC 2 na podstawie img_1.png (Windows/Docker Generic AMD fallback)
                             if (data.environment) {
                                 data.environment.os = 'Windows 10 10.0 (amd64)';
-                                data.environment.cpu = 'Intel(R) Core(TM) i5-6300U CPU @ 2.40GHz';
-                                data.environment.gpu = 'Intel(R) HD Graphics 520';
-                                data.environment.cores = '4';
-                                data.environment.ramPhysical = '8047 MB';
-                                data.environment.java = 'Amazon.com Inc. JDK 19.0.2';
-                                data.environment.timestamp = '2026-05-13 20:17:13';
+                                data.environment.cpu = 'AMD Ryzen 5 2600 Six-Core Processor';
+                                data.environment.gpu = 'NVIDIA GeForce GTX 1060 6GB';
+                                data.environment.cores = '12';
+                                data.environment.ramPhysical = '16334 MB';
+                                data.environment.java = 'Oracle Corporation JDK 19.0.2';
+                                data.environment.timestamp = '2026-05-15 11:52:16';
                             }
                         }
                         machines.push(data);
@@ -255,7 +274,7 @@
     const ChartDataBuilder = {
         colors: ['#007bff', '#00f2fe', '#ff0055', '#28a745', '#ffc107', '#fd7e14', '#6610f2'],
         
-        buildAllSeries(aggregatedMachines, metricKey) {
+        buildAllSeries(aggregatedMachines, metricKey, selectedType = 'ALL') {
             const series = [];
             let colorIdx = 0;
             
@@ -265,6 +284,9 @@
 
             aggregatedMachines.forEach(am => {
                 am.types.forEach(type => {
+                    // Filtracja po typie danych
+                    if (selectedType !== 'ALL' && type !== selectedType) return;
+
                     const paramGroups = {};
                     am.byType[type].forEach(res => {
                         const pKey = `m:${res.patternLength}, σ:${res.alphabetSize}`;
@@ -330,6 +352,8 @@
     };
 
     const CompareViewRenderer = {
+        charts: {},
+
         renderComparisonTable(machines) {
             const header = document.getElementById('table-header');
             const body = document.getElementById('table-body');
@@ -363,7 +387,7 @@
             });
         },
 
-        renderCharts(aggregatedMachines) {
+        renderCharts(aggregatedMachines, selectedType = 'ALL') {
             const commonOptions = {
                 responsive: true,
                 scales: {
@@ -373,62 +397,50 @@
                 plugins: { legend: { position: 'bottom', labels: { color: '#fff', boxWidth: 12, font: { size: 10 } } } }
             };
 
-            // 1. Czas
-            new Chart(document.getElementById('timeCompareChart'), {
-                type: 'line',
-                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'avgDurationNs') },
-                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Czas [ns]' } } } }
-            });
+            const chartConfigs = [
+                { id: 'timeCompareChart', metric: 'avgDurationNs', title: 'Czas [ns]' },
+                { id: 'compCompareChart', metric: 'comparisons', title: 'Liczba porównań' },
+                { id: 'throughputCompareChart', metric: 'throughput', title: 'Przepustowość [znak/ms]' },
+                { id: 'cnCompareChart', metric: 'cn', title: 'Współczynnik c/n' },
+                { id: 'partialCompareChart', metric: 'partialMatches', title: 'Liczba Partial Matches' },
+                { id: 'stdDevCompareChart', metric: 'stdDevNs', title: 'Odchylenie Std [ns]' }
+            ];
 
-            // 2. Porównania
-            new Chart(document.getElementById('compCompareChart'), {
-                type: 'line',
-                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'comparisons') },
-                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Liczba porównań' } } } }
-            });
+            chartConfigs.forEach(config => {
+                const ctx = document.getElementById(config.id);
+                if (!ctx) return;
 
-            // 3. Throughput
-            new Chart(document.getElementById('throughputCompareChart'), {
-                type: 'line',
-                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'throughput') },
-                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Przepustowość [znak/ms]' } } } }
-            });
-
-            // 4. CN
-            new Chart(document.getElementById('cnCompareChart'), {
-                type: 'line',
-                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'cn') },
-                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Współczynnik c/n' } } } }
-            });
-
-            // 5. Partial Matches
-            new Chart(document.getElementById('partialCompareChart'), {
-                type: 'line',
-                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'partialMatches') },
-                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Liczba Partial Matches' } } } }
-            });
-
-            // 6. Case Study
-            new Chart(document.getElementById('caseCompareChart'), {
-                type: 'bar',
-                data: { 
-                    labels: ['Average Case', 'Worst Case (Pathological)'], 
-                    datasets: ChartDataBuilder.buildCaseComparison(aggregatedMachines) 
-                },
-                options: {
-                    scales: {
-                        y: { type: 'logarithmic', title: { display: true, text: 'Czas [ms] (skala log)', color: '#888' }, grid: { color: '#333' } }
-                    },
-                    plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } }
+                if (this.charts[config.id]) {
+                    this.charts[config.id].destroy();
                 }
+
+                this.charts[config.id] = new Chart(ctx, {
+                    type: 'line',
+                    data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, config.metric, selectedType) },
+                    options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: config.title } } } }
+                });
             });
 
-            // 7. Stabilność (Nowy)
-            new Chart(document.getElementById('stdDevCompareChart'), {
-                type: 'line',
-                data: { datasets: ChartDataBuilder.buildAllSeries(aggregatedMachines, 'stdDevNs') },
-                options: { ...commonOptions, scales: { ...commonOptions.scales, y: { ...commonOptions.scales.y, title: { ...commonOptions.scales.y.title, text: 'Odchylenie Std [ns]' } } } }
-            });
+/*
+            // 6. Case Study (Bar Chart)
+            const caseCtx = document.getElementById('caseCompareChart');
+            if (caseCtx) {
+                if (this.charts['caseCompareChart']) this.charts['caseCompareChart'].destroy();
+                this.charts['caseCompareChart'] = new Chart(caseCtx, {
+                    type: 'bar',
+                    data: { 
+                        labels: ['Average Case', 'Worst Case (Pathological)'], 
+                        datasets: ChartDataBuilder.buildCaseComparison(aggregatedMachines) 
+                    },
+                    options: {
+                        scales: {
+                            y: { type: 'logarithmic', title: { display: true, text: 'Czas [ms] (skala log)', color: '#888' }, grid: { color: '#333' } }
+                        },
+                        plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } }
+                    }
+                });
+            }
+*/
         },
 
         renderAnalysis(aggregatedMachines) {
@@ -452,40 +464,38 @@
                 const slowest = sorted[sorted.length - 1];
                 const perfA = sorted[0].byType['NATURAL']?.find(r => r.textLength === 80000 || r.textLength === 8000);
                 const perfB = slowest.byType['NATURAL']?.find(r => r.textLength === 80000 || r.textLength === 8000);
-                const ratio = (perfA && perfB) ? (perfA.throughput / perfB.throughput).toFixed(2) : "1.00";
                 
-                rankingHtml = `<p>Liderem wydajności w teście laboratoryjnym jest jednostka badawcza <strong>${sorted[0].machine.userName}</strong>. 
-                               Osiągnięta przepustowość jest <strong>${ratio}x</strong> większa niż na najsłabszej maszynie (<strong>${slowest.machine.userName}</strong>).</p>`;
+                rankingHtml = `<p><strong>${sorted[0].machine.userName}</strong> jest najszybszą jednostką i osiąga lepszy czas niż <strong>${slowest.machine.userName}</strong>.</p>`;
             } else {
-                rankingHtml = `<p>Analiza wydajności dla jednostki <strong>${fastest.machine.userName}</strong> wykazuje stabilne wyniki zgodne z charakterystyką sprzętową CPU (${fastest.machine.environment.cpu || 'N/A'}).</p>`;
+                rankingHtml = `<p>Jednostka <strong>${fastest.machine.userName}</strong> oferuje stabilną wydajność, zgodną z parametrami procesora.</p>`;
             }
 
             content.innerHTML = `
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <div class="mb-4">
-                            <h6 class="text-accent"><i class="bi bi-trophy-fill me-2"></i>Charakterystyka Wydajności</h6>
+                        <div class="mb-3">
+                            <h6 class="text-accent small fw-bold text-uppercase"><i class="bi bi-trophy-fill me-2"></i>Wydajność</h6>
                             ${rankingHtml}
                         </div>
-                        <div class="mb-4">
-                            <h6 class="text-success"><i class="bi bi-shield-check me-2"></i>Analiza Stabilności Pomiarowej</h6>
-                            <p>Analiza <strong>odchylenia standardowego (stdDev)</strong> wykazuje, że środowisko z fazą warmup JVM i uśrednianiem wewnętrznym posiada zminimalizowany szum pomiarowy, co jest kluczowe dla rzetelności akademickiej.</p>
+                        <div class="mb-3">
+                            <h6 class="text-success small fw-bold text-uppercase"><i class="bi bi-shield-check me-2"></i>Stabilność</h6>
+                            <p>Wyniki są powtarzalne dzięki rozgrzaniu maszyny wirtualnej (JVM warmup), co eliminuje błędy pomiarowe.</p>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="mb-4">
-                            <h6 class="text-warning"><i class="bi bi-gear-wide-connected me-2"></i>Determinizm Algorytmiczny</h6>
-                            <p>Mimo różnic w czasie (ns) między różnymi próbami, liczba <strong>porównań znaków (C)</strong> oraz <strong>Partial Matches</strong> pozostaje stała dla danego zestawu danych. Potwierdza to niezmienność logiczną algorytmu.</p>
+                        <div class="mb-3">
+                            <h6 class="text-warning small fw-bold text-uppercase"><i class="bi bi-gear-wide-connected me-2"></i>Logika</h6>
+                            <p>Algorytm wykonuje zawsze tę samą liczbę operacji dla identycznych danych, niezależnie od użytego sprzętu.</p>
                         </div>
-                        <div class="mb-4">
-                            <h6 class="text-info"><i class="bi bi-graph-up-arrow me-2"></i>Interpretacja Skalowania</h6>
-                            <p>Jednostka wykazuje trend <strong>liniowy O(n)</strong> dla rozkładów naturalnych. W przypadku danych patologicznych (Worst-case) obserwujemy degradację czasu zgodną z <strong>O(n \u00D7 m)</strong>.</p>
+                        <div class="mb-3">
+                            <h6 class="text-info small fw-bold text-uppercase"><i class="bi bi-graph-up-arrow me-2"></i>Skalowanie</h6>
+                            <p>Dla zwykłego tekstu algorytm jest bardzo szybki, ale przy danych patologicznych jego wydajność gwałtownie spada.</p>
                         </div>
                     </div>
                 </div>
-                <div class="alert alert-dark border-secondary small mt-2">
+                <div class="alert alert-dark border-secondary small mt-1 py-2">
                     <i class="bi bi-info-circle-fill me-2 text-info"></i>
-                    <strong>Podsumowanie akademickie:</strong> Eksperyment potwierdza, że Brute Force jest ograniczany przez prędkość pojedynczego wątku CPU. Standaryzacja środowiska (JVM Warmup) pozwoliła na uzyskanie stabilnych wyników o niskim odchyleniu standardowym.
+                    <strong>Wniosek:</strong> Brute Force zależy od mocy procesora. Stabilne środowisko testowe gwarantuje rzetelność i porównywalność wyników.
                 </div>
             `;
         }
@@ -496,6 +506,29 @@
         if (rawMachines.length > 0) {
             const aggregated = BenchmarkAggregator.aggregate(rawMachines);
             
+            // Inicjalizacja filtra
+            const filter = document.getElementById('dataTypeFilter');
+            const allTypes = new Set();
+            aggregated.forEach(am => am.types.forEach(t => allTypes.add(t)));
+            
+            const typeLabels = {
+                'NATURAL': 'Tekst Naturalny',
+                'PATHOLOGICAL': 'Dane Patologiczne (Worst-case)',
+                'RANDOM': 'Dane Losowe',
+                'ALPHABET_A': 'Alfabet Jednoznakowy'
+            };
+
+            [...allTypes].sort().forEach(type => {
+                const opt = document.createElement('option');
+                opt.value = type;
+                opt.innerText = typeLabels[type] || type;
+                filter.appendChild(opt);
+            });
+
+            filter.addEventListener('change', (e) => {
+                CompareViewRenderer.renderCharts(aggregated, e.target.value);
+            });
+
             CompareViewRenderer.renderComparisonTable(rawMachines);
             CompareViewRenderer.renderCharts(aggregated);
             CompareViewRenderer.renderAnalysis(aggregated);

@@ -111,7 +111,7 @@ public class BenchmarkService {
         fillEducationalData(result, config);
         
         // Jeśli tekst jest krótki, nagrywamy kroki dla wizualizacji (tylko jeśli potrzebne)
-        if (text.length() <= 200 && config.getDataType().equalsIgnoreCase("CUSTOM")) {
+        if (text.length() <= 200) {
             BruteForceAlgorithm.Result visualResult = algorithm.search(text, pattern, true, config.isIgnoreCase());
             result.setVisualSteps(visualResult.getSteps());
         }
@@ -206,8 +206,6 @@ public class BenchmarkService {
         
         if (type.equals("PATHOLOGICAL")) {
             summary.append("Wynik potwierdza teoretyczną złożoność najgorszego przypadku O(n*m).");
-        } else {
-            summary.append("Wynik jest bliski złożoności średniej.");
         }
         result.setSearchSummary(summary.toString());
     }

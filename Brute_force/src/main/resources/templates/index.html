@@ -11,13 +11,6 @@
     <script th:src="@{/js/background-loader.js}"></script>
 </head>
 <body>
-<!-- Loading Overlay -->
-<div id="loadingOverlay" style="display: none;">
-    <div class="loader-neon"></div>
-    <div class="loading-text">Trwa generowanie danych...</div>
-    <div class="loading-subtext">System przygotowuje tekst i wzorzec do analizy algorytmicznej.</div>
-</div>
-
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="/">
@@ -651,14 +644,6 @@
                 const loadingContent = document.getElementById('loading-content-viz');
                 if (readyContent) readyContent.style.display = 'none';
                 if (loadingContent) loadingContent.style.display = 'block';
-
-                const overlay = document.getElementById('loadingOverlay');
-                if (overlay) {
-                    overlay.style.display = 'flex';
-                    setTimeout(() => {
-                        overlay.classList.add('active');
-                    }, 10);
-                }
             });
         }
 

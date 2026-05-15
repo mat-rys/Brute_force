@@ -11,13 +11,6 @@
     <script th:src="@{/js/background-loader.js}"></script>
 </head>
 <body>
-<!-- Loading Overlay -->
-<div id="loadingOverlay" style="display: none;">
-    <div class="loader-neon"></div>
-    <div class="loading-text">Trwa generowanie wyników...</div>
-    <div class="loading-subtext">Laboratorium oblicza wydajność algorytmu dla wybranych scenariuszy.</div>
-</div>
-
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="/">
@@ -133,12 +126,22 @@
                             <div class="col-6">
                                 <label class="form-label text-dim small fw-bold">GĘSTOŚĆ PARTIAL-MATCH</label>
                                 <input type="number" step="0.1" min="0" max="1" th:field="*{partialMatchDensity}" class="form-control bg-dark text-white border-secondary">
-                                <div class="config-help">Wpływ na worst-case.</div>
+                                <div class="mt-2 p-2 bg-dark bg-opacity-50 rounded border border-secondary">
+                                    <div class="small text-dim italic" style="font-size: 0.75rem;">
+                                        Partial-match = 0.1 &bdquo;Większa wartość zwiększa liczbę częściowych dopasowań.&rdquo;<br>
+                                        Domyślnie 0.1. Parametr nie wpływa na rozkłady DNA, Patologiczny i Periodyczny (posiadają własną, stałą strukturę dopasowań).
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label text-dim small fw-bold">POWTARZALNOŚĆ</label>
                                 <input type="number" step="0.1" min="0" max="1" th:field="*{repeatability}" class="form-control bg-dark text-white border-secondary">
-                                <div class="config-help">Stopień entropii danych.</div>
+                                <div class="mt-2 p-2 bg-dark bg-opacity-50 rounded border border-secondary">
+                                    <div class="small text-dim italic" style="font-size: 0.75rem;">
+                                        Powtarzalność = 0.0 &bdquo;Większa wartość zwiększa regularność danych wejściowych.&rdquo;<br>
+                                        Domyślnie 0.0. Parametr nie wpływa na rozkłady Naturalny (tekst ciągły) i DNA (jednorodny alfabet).
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -453,11 +456,6 @@
         const loadingContent = document.getElementById('loading-content');
         if (noDataContent) noDataContent.style.display = 'none';
         if (loadingContent) loadingContent.style.display = 'block';
-        
-        document.getElementById('loadingOverlay').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('loadingOverlay').classList.add('active');
-        }, 10);
     });
 
     if (results && results.length > 0) {

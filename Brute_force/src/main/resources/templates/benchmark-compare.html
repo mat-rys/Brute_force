@@ -11,13 +11,6 @@
     <script th:src="@{/js/background-loader.js}"></script>
 </head>
 <body>
-<!-- Loading Overlay -->
-<div id="loadingOverlay" style="display: none;">
-    <div class="loader-neon"></div>
-    <div class="loading-text">Wczytywanie danych porównawczych...</div>
-    <div class="loading-subtext">Pobieranie wyników benchmarków z różnych środowisk testowych.</div>
-</div>
-
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="/">
@@ -534,11 +527,6 @@
     };
 
     async function init() {
-        const overlay = document.getElementById('loadingOverlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            overlay.classList.add('active');
-        }
         const rawMachines = await BenchmarkLoader.loadAll();
         if (rawMachines.length > 0) {
             const aggregated = BenchmarkAggregator.aggregate(rawMachines);
@@ -569,14 +557,8 @@
             CompareViewRenderer.renderComparisonTable(rawMachines);
             CompareViewRenderer.renderCharts(aggregated);
             CompareViewRenderer.renderAnalysis(aggregated);
-            
-            // Ukryj overlay po załadowaniu
-            setTimeout(() => {
-                document.getElementById('loadingOverlay').classList.remove('active');
-            }, 500);
         } else {
             console.error('Błąd: Brak poprawnych danych JSON w /resources/static/data/');
-            document.getElementById('loadingOverlay').classList.remove('active');
         }
     }
 

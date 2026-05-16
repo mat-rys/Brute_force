@@ -153,6 +153,36 @@
                 </div>
             </div>
 
+            <!-- Metodologia benchmarku -->
+            <div class="card shadow border-secondary mb-4 bg-dark bg-opacity-50">
+                <div class="card-header bg-dark py-2 border-secondary">
+                    <h6 class="mb-0 text-white small"><i class="bi bi-calculator me-2"></i>Metodologia benchmarku</h6>
+                </div>
+                <div class="card-body p-3">
+                    <div class="methodology-formula mb-3 text-center">
+                        <div class="text-dim small mb-2">Uproszczony wzór metodologiczny:</div>
+                        <code class="text-primary fs-6 d-block mb-1">scenariusze &times; pozycja wzorca &times; próbki &times; ilość kroków</code>
+                    </div>
+
+                    <div class="methodology-calculation p-2 bg-dark bg-opacity-50 border border-secondary rounded mb-3">
+                        <div class="text-dim small mb-1">Przeliczenie prób:</div>
+                        <div id="methodologyCalc" class="text-white small fw-bold">
+                            <!-- Dynamicznie wypełniane przez updateMethodology() -->
+                            5 &times; 4 &times; 4 &times; 3 = 240 prób
+                        </div>
+                    </div>
+
+                    <div class="methodology-legend">
+                        <ul class="list-unstyled mb-0 small text-dim">
+                            <li><span class="text-primary">&bull;</span> <b>scenariusze</b> &rarr; wybrane typy danych (alfabetów)</li>
+                            <li><span class="text-primary">&bull;</span> <b>pozycja wzorca</b> &rarr; 4 warianty (początek, środek, koniec, losowa)</li>
+                            <li><span class="text-primary">&bull;</span> <b>próbki</b> &rarr; liczba niezależnych zestawów danych dla każdego n</li>
+                            <li><span class="text-primary">&bull;</span> <b>ilość kroków</b> &rarr; liczba testowanych rozmiarów tekstu (n)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <!-- Środowisko testowe -->
             <div class="card shadow border-secondary mb-4 bg-dark bg-opacity-50">
                 <div class="card-header bg-dark py-2 border-secondary">
@@ -198,7 +228,6 @@
                         <li><b>Stabilizacja JIT:</b> 30+ iteracji warmup przed pomiarem.</li>
                         <li><b>Precyzja:</b> Pierwszy pomiar po warmup jest odrzucany.</li>
                         <li><b>Odrzucanie outlierów:</b> Eliminacja skrajnych 5% wyników (min/max).</li>
-                        <li><b>Stabilność:</b> Wykorzystanie mediany zamiast średniej arytmetycznej.</li>
                     </ul>
                 </div>
             </div>
@@ -363,9 +392,27 @@
         cb.addEventListener('change', updateAutoAlphabet);
     });
 
+    function updateMethodology() {
+        const minN = parseInt(document.getElementById('minN').value) || 0;
+        const maxN = parseInt(document.getElementById('maxN').value) || 0;
+        const stepN = parseInt(document.getElementById('stepN').value) || 1;
+        const samples = parseInt(document.getElementById('samples').value) || 0;
+        const scenarios = document.querySelectorAll('input[name="dataTypes"]:checked').length;
+        const positions = 4; // Początek, Środek, Koniec, Losowa
+
+        const nSteps = stepN > 0 ? Math.max(0, Math.floor((maxN - minN) / stepN) + 1) : 0;
+        const totalTrials = scenarios * positions * samples * nSteps;
+
+        const calcDiv = document.getElementById('methodologyCalc');
+        if (calcDiv) {
+            calcDiv.innerHTML = `${scenarios} &times; ${positions} &times; ${samples} &times; ${nSteps} = ${totalTrials} prób`;
+        }
+    }
+
     // Inicjalizacja przy ładowaniu
     document.addEventListener('DOMContentLoaded', function() {
         updateAutoAlphabet();
+        updateMethodology();
         
         // Inicjalizacja tooltipów Bootstrap
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -377,6 +424,15 @@
         var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
         var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
             return new bootstrap.Popover(popoverTriggerEl);
+        });
+
+        // Dodanie nasłuchiwania na zmiany wszystkich pól formularza dla metodologii
+        ['minN', 'maxN', 'stepN', 'samples'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', updateMethodology);
+        });
+        document.querySelectorAll('input[name="dataTypes"]').forEach(cb => {
+            cb.addEventListener('change', updateMethodology);
         });
     });
 
@@ -418,6 +474,7 @@
                 if (patternLengths) patternLengths.value = "10";
                 break;
         }
+        updateMethodology();
     }
 
     function smoothData(data) {

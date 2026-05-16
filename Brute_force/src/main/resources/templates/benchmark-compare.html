@@ -153,20 +153,6 @@
                 <div class="col-md-6">
                     <div class="card shadow border-secondary bg-dark">
                         <div class="card-header bg-dark border-secondary">
-                            <h6 class="mb-0 text-white"><i class="bi bi-speedometer2 me-2"></i>Przepustowość</h6>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="throughputCompareChart" height="220"></canvas>
-                            <p class="text-dim small mt-2 mb-0" style="font-size: 0.75rem;">
-                                <i class="bi bi-info-circle me-1"></i> <strong>Przepustowość (Throughput)</strong> — liczba znaków przetwarzanych przez algorytm w jednostce czasu.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card shadow border-secondary bg-dark">
-                        <div class="card-header bg-dark border-secondary">
                             <h6 class="mb-0 text-white"><i class="bi bi-activity me-2"></i>Współczynnik cn</h6>
                         </div>
                         <div class="card-body">
@@ -448,7 +434,6 @@
             const chartConfigs = [
                 { id: 'timeCompareChart', metric: 'avgDurationNs', title: 'Czas [ms]' },
                 { id: 'compCompareChart', metric: 'comparisons', title: 'Liczba porównań' },
-                { id: 'throughputCompareChart', metric: 'throughput', title: 'Przepustowość [znak/ms]' },
                 { id: 'cnCompareChart', metric: 'cn', title: 'Współczynnik c/n' },
                 { id: 'partialCompareChart', metric: 'partialMatches', title: 'Liczba Partial Matches' },
                 { id: 'stdDevCompareChart', metric: 'stdDevNs', title: 'Odchylenie Std [ms]' }

@@ -68,7 +68,7 @@
 
                         <div class="row g-3 mb-3">
                             <div class="col-4">
-                                <label class="form-label text-dim small fw-bold">ITERACJE (avg)</label>
+                                <label class="form-label text-dim small fw-bold">ITERACJE (mediana)</label>
                                 <input type="number" th:field="*{repetitions}" class="form-control bg-dark text-white border-secondary" id="iterations">
                             </div>
                             <div class="col-4">
@@ -259,8 +259,6 @@
                                     <th>Por. (C)</th>
                                     <th>Throughput</th>
                                     <th>PM</th>
-                                    <th>Niezg.</th>
-                                    <th>C/n</th>
                                     <th>Złożoność</th>
                                 </tr>
                             </thead>
@@ -292,14 +290,12 @@
                                         <span th:text="${#numbers.formatDecimal(res.throughput / 1000.0, 1, 2)}">1.5</span> <small>M/s</small>
                                     </td>
                                     <td th:text="${res.partialMatches}">70</td>
-                                    <td th:text="${res.mismatches}">991</td>
-                                    <td class="fw-bold" th:text="${#numbers.formatDecimal(res.cn, 1, 2)}">1.07</td>
                                     <td>
                                         <span class="badge bg-outline-secondary border border-secondary text-dim" th:text="${res.theoreticalComplexity}">O(n)</span>
                                     </td>
                                 </tr>
                                 <tr th:if="${experimentResults.isEmpty()}">
-                                    <td colspan="12" class="text-center py-5 text-muted">
+                                    <td colspan="10" class="text-center py-5 text-muted">
                                         <div id="no-data-content">
                                             <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                             Brak danych w rejestrze. Uruchom benchmark, aby rozpocząć pomiary.

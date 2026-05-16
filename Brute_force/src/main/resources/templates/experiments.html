@@ -38,9 +38,9 @@
                             Profile
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (10k-30k, 300 prób)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (100k-300k, 500 prób)</a></li>
-                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (500k-1M, 900 prób)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('quick')">Szybki (10k-30k, 240 prób)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('standard')">Standardowy (100k-300k, 400 prób)</a></li>
+                            <li><a class="dropdown-item text-white" href="#" onclick="applyProfile('detailed')">Dokładny (500k-1M, 720 prób)</a></li>
                         </ul>
                     </div>
                 </div>
@@ -206,9 +206,9 @@
 
         <!-- Tabela Wyników -->
         <div class="col-xl-8">
-            <div class="card shadow border-accent mb-4">
-                <div class="card-header bg-accent text-dark py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold text-dark"><i class="bi bi-table me-2"></i>REJESTR POMIARÓW LABORATORYJNYCH</h5>
+            <div class="card shadow border-primary mb-4">
+                <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-white"><i class="bi bi-table me-2"></i>REJESTR POMIARÓW LABORATORYJNYCH</h5>
                     <div class="d-flex gap-2 align-items-center">
                         <a href="/export/full-json" class="btn btn-sm btn-dark fw-bold border-dark" th:if="${!experimentResults.isEmpty()}">
                             <i class="bi bi-download me-1"></i> EKSPORTUJ WYNIKI (JSON)
@@ -223,23 +223,34 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Typ / Scenariusz</th>
+                                    <th>POZYCJA WZORCA <i class="bi bi-question-circle cursor-help" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-html="true" title="Metodyka wstrzykiwania wzorca" data-bs-content="<b>Początek/Środek/Koniec:</b> Testuje wpływ odległości od początku tekstu na czas znalezienia pierwszego wystąpienia.<br><b>Losowa:</b> Wstrzykuje wzorzec w losowe miejsce (random.nextInt(n-m+1)), co eliminuje błąd systematyczny."></i></th>
                                     <th>n</th>
-                                    <th>m</th>
+                                    <th>m (wz.)</th>
                                     <th>Mediana [ms]</th>
                                     <th>Por. (C)</th>
                                     <th>Throughput</th>
                                     <th>PM</th>
-                                    <th>M</th>
+                                    <th>Niezg.</th>
                                     <th>C/n</th>
                                     <th>Złożoność</th>
                                 </tr>
                             </thead>
                             <tbody class="text-dim">
-                                <tr th:each="res : ${experimentResults}">
+                                <tr th:each="res, resStat : ${experimentResults}">
                                     <td th:text="${res.id}" class="fw-bold text-primary">T1</td>
                                     <td>
                                         <div th:text="${res.dataType}">Naturalny</div>
                                         <div class="small opacity-50" th:text="${res.scenarioCase}">average-case</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-dark border border-secondary text-dim cursor-help" 
+                                              data-bs-toggle="tooltip" 
+                                              data-bs-html="true"
+                                              th:title="${res.patternPosition == 'Początek' ? '<b>Scenariusz optymistyczny</b> dla wyszukiwania pierwszego wystąpienia. Pozwala ocenić narzut inicjalizacji pętli.' : 
+                                                        res.patternPosition == 'Środek' ? '<b>Statystycznie uśredniona</b> pozycja. Reprezentuje typowy przypadek rozkładu danych.' : 
+                                                        res.patternPosition == 'Koniec' ? '<b>Scenariusz pesymistyczny</b> dla wyszukiwania pierwszego wystąpienia. Wymusza pełny przebieg pętli.' : 
+                                                        res.patternPosition == 'Losowa' ? '<b>Eliminacja błędu systematycznego.</b> Zapobiega faworyzowaniu stałych przesunięć przez cache. Implementacja: random.nextInt(n-m+1).' : 'Opis niedostępny'}"
+                                              th:text="${res.patternPosition}">Początek</span>
                                     </td>
                                     <td th:text="${res.textLength}">1000</td>
                                     <td th:text="${res.patternLength}">10</td>
@@ -259,7 +270,7 @@
                                     </td>
                                 </tr>
                                 <tr th:if="${experimentResults.isEmpty()}">
-                                    <td colspan="11" class="text-center py-5 text-muted">
+                                    <td colspan="12" class="text-center py-5 text-muted">
                                         <div id="no-data-content">
                                             <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                                             Brak danych w rejestrze. Uruchom benchmark, aby rozpocząć pomiary.
@@ -296,49 +307,6 @@
                         </div>
                         <div class="card-body">
                             <canvas id="compChart" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="card shadow border-secondary bg-dark">
-                        <div class="card-header bg-dark border-secondary">
-                            <h6 class="mb-0 text-white">Analiza skalowalności i interpretacja akademicka</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-7 border-end border-secondary">
-                                    <p class="small text-white opacity-75">
-                                        <i class="bi bi-graph-up-arrow me-2 text-accent"></i>
-                                        <strong>Obserwowany trend:</strong> 
-                                        <span id="trendAnalysis">Analizowanie danych...</span>
-                                    </p>
-                                    <p class="small text-white opacity-75">
-                                        <i class="bi bi-lightbulb me-2 text-warning"></i>
-                                        <strong>Wnioski:</strong>
-                                        <span id="conclusionText">Czekam na dane.</span>
-                                    </p>
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="bg-primary p-2 rounded me-3">
-                                            <i class="bi bi-speedometer2 text-white"></i>
-                                        </div>
-                                        <div>
-                                            <div class="small text-dim">Średni Throughput</div>
-                                            <div class="h5 mb-0 text-white" id="avgThroughput">0 M/s</div>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-accent p-2 rounded me-3">
-                                            <i class="bi bi-check-circle text-dark"></i>
-                                        </div>
-                                        <div>
-                                            <div class="small text-dim">Zgodność z teorią</div>
-                                            <div class="h5 mb-0 text-white" id="theoryMatch">Weryfikacja...</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -396,7 +364,21 @@
     });
 
     // Inicjalizacja przy ładowaniu
-    document.addEventListener('DOMContentLoaded', updateAutoAlphabet);
+    document.addEventListener('DOMContentLoaded', function() {
+        updateAutoAlphabet();
+        
+        // Inicjalizacja tooltipów Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Inicjalizacja popoverów Bootstrap
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+            return new bootstrap.Popover(popoverTriggerEl);
+        });
+    });
 
     function applyProfile(profile) {
         const minN = document.getElementById('minN');
@@ -539,24 +521,6 @@
             }
         });
 
-        // Analiza trendów
-        const avgThroughput = results.reduce((acc, r) => acc + r.throughput, 0) / results.length;
-        document.getElementById('avgThroughput').innerText = (avgThroughput / 1000).toFixed(2) + ' M/s';
-
-        const isPathological = results.some(r => r.dataType.includes('Patologiczny'));
-        const hasHighCn = results.some(r => r.cn > 1.5);
-        
-        if (isPathological) {
-            document.getElementById('trendAnalysis').innerText = "Wykryto trend O(n \u00D7 m) dla danych patologicznych.";
-            document.getElementById('conclusionText').innerText = "Algorytm Brute Force wykazuje drastyczną degradację wydajności przy wielu częściowych dopasowaniach.";
-            document.getElementById('theoryMatch').innerText = "Zgodny (Worst-case)";
-            document.getElementById('theoryMatch').className = "h5 mb-0 text-danger";
-        } else {
-            document.getElementById('trendAnalysis').innerText = "Wzrost liniowy O(n). Algorytm pracuje w trybie optymistycznym.";
-            document.getElementById('conclusionText').innerText = "Szybkie wykrywanie mismatch pozwala na utrzymanie wysokiej wydajności bliskiej jednej operacji na znak.";
-            document.getElementById('theoryMatch').innerText = "Zgodny (Average-case)";
-            document.getElementById('theoryMatch').className = "h5 mb-0 text-success";
-        }
     }
     /*]]>*/
 </script>

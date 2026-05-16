@@ -14,7 +14,7 @@ public class MultiTestConfig {
     private List<String> dataTypes = new ArrayList<>(Arrays.asList("NATURAL", "UNIFORM", "DNA", "PERIODIC", "PATHOLOGICAL"));
     private String alphabetSizes = "26";
     private String seeds = "42";
-    private List<String> patternPositions = new ArrayList<>(Arrays.asList("START", "MIDDLE", "END", "RANDOM", "MULTIPLE"));
+    private List<String> patternPositions = new ArrayList<>(Arrays.asList("START", "MIDDLE", "END", "RANDOM"));
     private String matchCounts = "1";
     private int repetitions = 8;
     private int samplesPerN = 4;

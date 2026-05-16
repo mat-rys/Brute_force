@@ -157,7 +157,7 @@ public class BenchmarkService {
                 result.setRepeatability(sigma > 10 ? "niska" : "średnia");
                 result.setDataDescription("<b>Rozkład jednostajny:</b> Każdy znak z alfabetu o rozmiarze σ=" + sigma + " ma równe prawdopodobieństwo.");
                 result.setAlgorithmImpact("Przy większym σ (alfabet) algorytm szybciej wykrywa rozbieżności. Mniejsze σ zwiększa liczbę porównań.");
-                result.setDifficultyExplanation(sigma > 10 ? "szybkie mismatch, zachowanie bliskie O(n)" : "więcej częściowych dopasowań");
+                result.setDifficultyExplanation(sigma > 10 ? "szybkie mismatch, zachowanie bliskie \u223CO(n)" : "więcej częściowych dopasowań");
                 break;
             case "PATHOLOGICAL":
                 result.setDataType("Dane patologiczne");
@@ -194,9 +194,6 @@ public class BenchmarkService {
         gen.append("<b>Rozkład:</b> ").append(result.getDataType()).append(".<br>");
         gen.append("<b>Mechanizm RNG:</b> Deterministyczny Random(seed=").append(config.getSeed()).append(").<br>");
         gen.append("<b>Pozycja wzorca:</b> ").append(translatePosition(pos));
-        if (pos.equals("MULTIPLE")) {
-            gen.append(" (").append(config.getMatchCount()).append(" powtórzeń)");
-        }
         gen.append(".<br>");
         if (type.equals("UNIFORM")) {
             gen.append("<b>Alfabet:</b> σ=").append(sigma).append(" (a-").append((char)('a' + sigma - 1)).append(").");
@@ -235,8 +232,7 @@ public class BenchmarkService {
             case "START": return "Początek";
             case "MIDDLE": return "Środek";
             case "END": return "Koniec";
-            case "RANDOM": return "Losowo";
-            case "MULTIPLE": return "Wiele wystąpień";
+            case "RANDOM": return "Losowa";
             default: return pos;
         }
     }
@@ -301,7 +297,7 @@ public class BenchmarkService {
             result.setTheoreticalComplexity("O(n)");
         } else {
             result.setScenarioCase("Average-case");
-            result.setTheoreticalComplexity("~O(n)");
+            result.setTheoreticalComplexity("\u223CO(n)");
         }
 
         return result;
@@ -356,15 +352,9 @@ public class BenchmarkService {
                 case "END":
                     sb.replace(n - m, n, pattern);
                     break;
-                case "MULTIPLE":
-                    int count = Math.max(1, config.getMatchCount());
-                    for (int i = 0; i < count; i++) {
-                        int interval = n / (count + 1);
-                        int targetIdx = (i + 1) * interval;
-                        if (targetIdx + m <= n) {
-                            sb.replace(targetIdx, targetIdx + m, pattern);
-                        }
-                    }
+                case "RANDOM":
+                    int randomIdx = random.nextInt(n - m + 1);
+                    sb.replace(randomIdx, randomIdx + m, pattern);
                     break;
             }
         }

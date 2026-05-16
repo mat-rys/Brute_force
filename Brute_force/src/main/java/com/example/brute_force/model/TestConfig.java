@@ -11,7 +11,7 @@ public class TestConfig {
     private int repeatInsideBenchmark = 1;
     private String pattern = "aaaaa";
     private int alphabetSize = 26;
-    private String patternPosition = "START"; // START, MIDDLE, END, MULTIPLE
+    private String patternPosition = "START"; // START, MIDDLE, END, RANDOM
     private int matchCount = 1;
     private String customText = "";
     private String customPattern = "";

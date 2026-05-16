@@ -1,6 +1,6 @@
 :root {
-    --primary: #38bdf8; /* Neon Blue */
-    --primary-glow: rgba(56, 189, 248, 0.4);
+    --primary: #0d6efd; /* Darker Blue */
+    --primary-glow: rgba(13, 110, 253, 0.4);
     --accent: #10b981; /* Emerald */
     --danger: #ef4444; /* Bright Red */
     --bg-main: #020617; /* Deepest Navy */
@@ -78,7 +78,7 @@ body {
 
 .academic-header {
     font-weight: 800;
-    background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #0d6efd 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 0.3rem;
@@ -92,7 +92,7 @@ body {
     border-left: 5px solid var(--primary);
     padding: 1.5rem 2rem;
     margin: 1.5rem 0;
-    background: rgba(56, 189, 248, 0.15);
+    background: rgba(13, 110, 253, 0.15);
     line-height: 1.9;
     border-radius: 0 10px 10px 0;
 }
@@ -115,7 +115,7 @@ body {
 }
 
 .academic-table thead th {
-    background: rgba(56, 189, 248, 0.1) !important;
+    background: rgba(13, 110, 253, 0.1) !important;
     color: var(--primary) !important;
     text-transform: uppercase;
     font-size: 0.85rem;
@@ -133,7 +133,7 @@ body {
 }
 
 .academic-table tbody tr:hover {
-    background-color: rgba(56, 189, 248, 0.15) !important;
+    background-color: rgba(13, 110, 253, 0.15) !important;
 }
 
 .academic-table thead th:first-child {
@@ -261,7 +261,7 @@ body {
 
 .char-cell.active-p {
     border-color: var(--primary);
-    background: #0ea5e9;
+    background: var(--primary);
     box-shadow: 0 0 20px var(--primary-glow);
     transform: translateY(-8px) scale(1.05);
     z-index: 10;
@@ -336,7 +336,7 @@ body {
 
 .log-entry.highlight {
     color: #ffffff;
-    background: rgba(56, 189, 248, 0.15);
+    background: rgba(13, 110, 253, 0.15);
     border-left: 5px solid var(--primary);
     margin: 4px 0;
     border-radius: 0 8px 8px 0;
@@ -383,7 +383,7 @@ body {
 }
 
 .code-line.active {
-    background: rgba(56, 189, 248, 0.2);
+    background: rgba(13, 110, 253, 0.2);
     color: #ffffff;
     border-left: 3px solid var(--primary);
 }
@@ -408,7 +408,7 @@ body {
     font-size: 1.25rem;
     text-align: center;
     margin-top: 2rem;
-    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
 }
 
 .pattern-row {
@@ -426,7 +426,7 @@ body {
 }
 
 .btn-primary:hover {
-    background-color: #0ea5e9;
+    background-color: #0b5ed7;
     box-shadow: 0 0 15px var(--primary-glow);
 }
 
@@ -503,16 +503,16 @@ body {
 }
 
 .step-item:hover {
-    background: rgba(56, 189, 248, 0.15);
+    background: rgba(13, 110, 253, 0.15);
     border-color: var(--primary);
     transform: translateX(12px) scale(1.03);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.15);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(13, 110, 253, 0.15);
 }
 
 .step-number {
     width: 42px;
     height: 42px;
-    background: linear-gradient(135deg, var(--primary) 0%, #0ea5e9 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, #0a58ca 100%);
     color: #ffffff !important;
     border-radius: 10px;
     display: flex;
@@ -522,7 +522,7 @@ body {
     font-size: 1.3rem;
     flex-shrink: 0;
     transform: rotate(-5deg);
-    box-shadow: 0 8px 20px rgba(56, 189, 248, 0.5);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.5);
     border: 2px solid rgba(255, 255, 255, 0.3);
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
@@ -581,7 +581,7 @@ body {
 .diagram-container-huge:hover {
     border-color: var(--primary);
     background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 60px rgba(56, 189, 248, 0.3);
+    box-shadow: 0 0 60px rgba(13, 110, 253, 0.3);
 }
 
 .diagram-image-huge {
@@ -632,6 +632,35 @@ body {
     color: var(--accent) !important;
 }
 
+.bg-accent {
+    background-color: var(--accent) !important;
+}
+
+.border-accent {
+    border-color: var(--accent) !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.border-primary {
+    border-color: var(--primary) !important;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+}
+
+.cursor-help {
+    cursor: help;
+}
+
 /* Tooltipy i pomoc w konfiguracji */
 .config-help {
     font-size: 0.7rem;
@@ -676,7 +705,7 @@ canvas {
 .loader-neon {
     width: 80px;
     height: 80px;
-    border: 5px solid rgba(56, 189, 248, 0.1);
+    border: 5px solid rgba(13, 110, 253, 0.1);
     border-top: 5px solid var(--primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
